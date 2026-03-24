@@ -1,7 +1,7 @@
 
 # Kannondai Community Information Site
 
-> **For AI assistants**: To initialize context, say "Please read COPILOT-INIT.md to initialize"
+> **For AI assistants (GitHub Copilot)**: Context is loaded automatically from `.github/copilot-instructions.md`.
 
 This repository hosts the website and resources for the Kannondai Community (Tsukuba City, Japan). The site is an independent, volunteer-driven project and is not affiliated with the city government or any official neighborhood association.
 
