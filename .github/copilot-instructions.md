@@ -1,4 +1,4 @@
-<!-- AI Context Standard v0.7 - Adopted: 2026-03-24 -->
+<!-- AI Context Standard v0.8 - Adopted: 2026-03-24 -->
 # AI Assistant Initialization Guide — kannondai-community (Public)
 
 **Purpose**: Initialize AI context for working with this repository
