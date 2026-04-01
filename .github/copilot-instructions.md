@@ -1,4 +1,4 @@
-<!-- AI Context Standard v0.8 - Adopted: 2026-03-24 -->
+<!-- AI Context Standard v0.8.8 - Adopted: 2026-04-02 -->
 # AI Assistant Initialization Guide — kannondai-community (Public)
 
 **Purpose**: Initialize AI context for working with this repository
@@ -88,3 +88,24 @@ tools/
 - **Character encoding**: Always UTF-8
 - **BGM page updates**: See `tools/README.md` for monthly update workflow
 - **Current work**: Check PROJECT_STATUS.md for latest tasks
+
+---
+
+## 🤖 AI Operating Conventions (from AI Context Standard v0.8.8)
+
+### Failure Recovery
+
+When the same operation fails 3+ times, stop and explain to the user. Propose alternatives. Do not silently retry 15+ times.
+
+### PowerShell Multi-repo Git
+
+Always use `git -C <path>` instead of `cd <path>; git ...`.  
+The terminal tool may silently strip `cd` from chained commands.
+
+```powershell
+# ❌ Unreliable
+cd C:\path\to\repo; git commit -m "..."
+
+# ✅ Reliable
+git -C C:\path\to\repo commit -m "..."
+```
