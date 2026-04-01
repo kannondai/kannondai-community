@@ -1,5 +1,5 @@
 ---
-agent: ask
+agent: copilot
 description: セッション初期化（PROJECT_STATUS.md の読み込みと確認）
 alwaysApply: true
 ---
