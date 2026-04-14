@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>観音台コミュニティプロジェクトについて</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 24px;
+      color: #222;
+    }
+
+    @page {
+      size: A4;
+      margin: 20mm;
+    }
+    @media print {
+      body { padding: 0; }
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.3em;
+      margin-bottom: 4px;
+      color: #2c3e50;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.85em;
+      color: #777;
+      margin-bottom: 32px;
+    }
+
+    /* ── 全体コンテナ ── */
+    .outer {
+      border: 2px solid #aaa;
+      border-radius: 12px;
+      padding: 20px 16px 24px;
+      background: #fafafa;
+      position: relative;
+    }
+    .outer-label {
+      text-align: center;
+      font-size: 0.8em;
+      color: #888;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── 逆三角形レイアウト ── */
+
+    /* 上段：2つの自治会を横並び */
+    .diagram-top {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 0;
+    }
+
+    /* 自治会ボックス */
+    .jichikai {
+      width: 180px;
+      border: 2px solid #3a7bd5;
+      border-radius: 10px;
+      background: #eef4ff;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .jichikai .icon { font-size: 1.8em; display: block; margin-bottom: 4px; }
+    .jichikai .name { font-size: 0.95em; font-weight: bold; color: #2c3e50; }
+    .jichikai .note { font-size: 0.72em; color: #555; margin-top: 3px; }
+    .jichikai .tag {
+      display: inline-block;
+      margin-top: 7px;
+      background: #3a7bd5;
+      color: #fff;
+      font-size: 0.68em;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* 矢印（斜め下向き ×2） */
+    .arrows-mid {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin: 2px 0;
+    }
+    .arrow-down {
+      width: 80px;
+      text-align: center;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .arrow-down .mid-label {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.68em;
+      color: #777;
+      background: #fafafa;
+      padding: 1px 5px;
+      white-space: nowrap;
+      z-index: 1;
+    }
+    .arrow-down .sym {
+      display: block;
+      margin: 0 auto;
+    }
+    .arrow-down .sym.left  { transform: rotate(-25deg); }
+    .arrow-down .sym.right { transform: rotate(25deg);  }
+
+    /* 下段：プロジェクトボックス（中央・幅を両自治会の合計に揃える） */
+    .diagram-bottom {
+      display: flex;
+      justify-content: center;
+    }
+
+    .project {
+      width: 180px;
+      border: 2px solid #e67e22;
+      border-radius: 10px;
+      background: #fff8f0;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .project .icon { font-size: 1.8em; display: block; margin-bottom: 4px; }
+    .project .name { font-size: 0.95em; font-weight: bold; color: #a04000; }
+    .project .tag {
+      display: inline-block;
+      margin-top: 6px;
+      background: #e67e22;
+      color: #fff;
+      font-size: 0.68em;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .project ul {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+      font-size: 0.78em;
+      color: #555;
+      text-align: left;
+    }
+    .project ul li::before { content: "・"; }
+    .project .cost {
+      margin-top: 10px;
+      font-size: 0.73em;
+      color: #e67e22;
+      border-top: 1px dotted #e67e22;
+      padding-top: 7px;
+    }
+
+    /* 注釈 */
+    .footnote {
+      font-size: 0.78em;
+      color: #888;
+      margin: 4px 0 0;
+    }
+
+    .notes {
+      margin-top: 16px;
+      font-size: 0.78em;
+      color: #555;
+      line-height: 1.8;
+    }
+    .notes p { margin: 0 0 3px; }
+
+    /* 下段解説 */
+    .explanation h2 {
+      font-size: 1em;
+      color: #2c3e50;
+      border-left: 4px solid #e67e22;
+      padding-left: 8px;
+      margin-bottom: 12px;
+    }
+    .qa {
+      margin-bottom: 14px;
+    }
+    .qa .q {
+      font-size: 0.85em;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 3px;
+    }
+    .qa .a {
+      font-size: 0.82em;
+      color: #444;
+      line-height: 1.7;
+      padding-left: 1.2em;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>観音台コミュニティプロジェクトについて</h1>
+  <p class="subtitle">2026年4月　有志一同</p>
+
+  <div class="outer">
+
+    <div class="outer-label">── 観音台コミュニティ（全住民） ──</div>
+
+    <!-- 上段：2つの自治会 -->
+    <div class="diagram-top">
+
+      <div class="jichikai">
+        <span class="icon">🏛️</span>
+        <div class="name">第一自治会</div>
+        <div class="note">224世帯<sup>*</sup></div>
+        <span class="tag">公式組織</span>
+      </div>
+
+      <div class="jichikai">
+        <span class="icon">🏛️</span>
+        <div class="name">第二自治会</div>
+        <div class="note">113世帯<sup>*</sup></div>
+        <span class="tag">公式組織</span>
+      </div>
+
+    </div><!-- /.diagram-top -->
+
+    <!-- 中段：矢印（斜め内向き） -->
+    <div class="arrows-mid">
+      <div class="arrow-down">
+        <svg class="sym left" width="14" height="83" viewBox="0 0 14 130" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ah-s-l" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto-start-reverse">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#bbb"/>
+            </marker>
+            <marker id="ah-e-l" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#bbb"/>
+            </marker>
+          </defs>
+          <line x1="7" y1="7" x2="7" y2="123" stroke="#bbb" stroke-width="2.5"
+                marker-start="url(#ah-s-l)" marker-end="url(#ah-e-l)"/>
+        </svg>
+        <span class="mid-label">情報共有・活動応援</span>
+      </div>
+      <div class="arrow-down">
+        <svg class="sym right" width="14" height="83" viewBox="0 0 14 130" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ah-s-r" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto-start-reverse">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#bbb"/>
+            </marker>
+            <marker id="ah-e-r" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="#bbb"/>
+            </marker>
+          </defs>
+          <line x1="7" y1="7" x2="7" y2="123" stroke="#bbb" stroke-width="2.5"
+                marker-start="url(#ah-s-r)" marker-end="url(#ah-e-r)"/>
+        </svg>
+        <span class="mid-label">情報共有・活動応援</span>
+      </div>
+    </div>
+
+    <!-- 下段：有志プロジェクト（中央） -->
+    <div class="diagram-bottom">
+      <div class="project">
+        <span class="icon">💡</span>
+        <div class="name">有志プロジェクト</div>
+        <span class="tag">独立・非公式</span>
+        <ul>
+          <li>ウェブサイト運営</li>
+          <li>年報の発行</li>
+          <li>地域情報の発信</li>
+        </ul>
+        <div class="cost">💰 費用は有志の自己負担<br>自治会の会費は使いません</div>
+      </div>
+    </div><!-- /.diagram-bottom -->
+
+  </div><!-- /.outer -->
+
+  <p class="footnote"><sup>*</sup> ゴミ集積所利用者を含む推定数</p>
+
+  <div class="notes">
+    <p>▶ ウェブサイト：<strong>https://kannondai.github.io/kannondai-community/</strong></p>
+    <p>▶ 有志プロジェクトは、両自治会の公式な決定・活動とは独立して運営されています。</p>
+    <p>▶ 独立している理由は、意思決定を軽くして新しい試みを実現しやすくするためです。</p>
+    <p>▶ 年報は地域の活動を記録し、住民に情報を伝えることを目的として発行しています。</p>
+  </div>
+
+  <hr style="margin: 28px 0 20px; border: none; border-top: 1px solid #ddd;">
+
+  <section class="explanation">
+    <h2>よくある誤解について</h2>
+
+    <div class="qa">
+      <div class="q">❓ 自治会の活動と関係があるのですか？</div>
+      <div class="a">両方の自治会と情報を共有し、活動を応援していますが、<strong>自治会の指示や承認を受けているわけではありません</strong>。自治会役員でも、一般の住民でも、参加できます。</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">❓ 会費や税金が使われていますか？</div>
+      <div class="a"><strong>いいえ。費用はすべて有志の自己負担です。</strong>自治会の会費も、公費も一切使っていません。ウェブサイトの維持費（サーバー代）もかかっておらず、無料のサービスを使っています。</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">❓ 年報とはどういうものですか？</div>
+      <div class="a">地域の活動・出来事・課題などを記録したものです。<strong>どちらかの自治会の公式広報ではなく</strong>、住民が自分たちの地域を理解しやすくするために、有志が自主的に作成・配布しています。</div>
+    </div>
+
+    <div class="qa">
+      <div class="q">❓ 参加するにはどうすればいいですか？</div>
+      <div class="a">特別な手続きは必要ありません。ウェブサイトを見る、年報を読む、あるいは関わりたい方は有志に声をかけていただければ歓迎します。</div>
+    </div>
+
+  </section>
+
+</body>
+</html>
