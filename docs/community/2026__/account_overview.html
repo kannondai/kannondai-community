@@ -1,0 +1,458 @@
+<!DOCTYPE html><html><head>
+      <title>第二自治会 会計の全体像</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+      
+      <style>
+code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview">
+      <div>
+
+<h1 id="第二自治会-会計の全体像">第二自治会 会計の全体像</h1>
+
+<blockquote>
+<p>この資料は、2025年度に生じた会計処理の混乱を受けて、会計の仕組みを誰でも理解できるよう整理したものです。表面的な論点（現金主義 vs 発生主義・会計年度の統一）への回答と、実務上の整理すべきことの両面を扱います。</p>
+</blockquote>
+
+<hr>
+
+<h2 id="0-この資料の目的">0. この資料の目的</h2>
+
+<h3 id="何が問題だったか">何が問題だったか</h3>
+
+<p>2025年度に会計処理の混乱が生じました。表面上は次の2点が論点として挙がりました。</p>
+
+<ul>
+<li><strong>現金主義 vs 発生主義</strong>：いつ現金が動いたかで記録するか、費用が発生した時点で記録するか</li>
+<li><strong>会計年度の統一</strong>：第一自治会（1月末締め）に合わせるべきか</li>
+</ul>
+
+<p>しかし、これらは<strong>表面的な論点</strong>です。本質的な問題は別にありました。</p>
+
+<blockquote>
+<p><strong>本質的な問題</strong>：事務局が立て替えた費用の中に、一般会計の項目と特別会計の項目が混在しており、どの費用がどの会計に属するかのルールが明文化されていなかった。</p>
+</blockquote>
+
+<h3 id="現金主義vs発生主義について">「現金主義 vs 発生主義」について</h3>
+
+<p>「輪番の会計係には現金主義の方が分かりやすい」という主張があります。しかし、自治会の取引では費用の発生と現金の動きはほぼ一致するため、<strong>両者の違いは実質的にほとんどありません</strong>。両者が違いを生むのは「費用は発生したが、現金がまだ動いていない」年度またぎの場面だけです。</p>
+
+<p>重要なのは「現金主義か発生主義か」ではなく、<strong>「どの科目・どの会計に記録するかのルールが明確かどうか」</strong>です。</p>
+
+<h3 id="2つの視点">この資料の2つの視点</h3>
+
+<p>この資料は、次の2つの視点で設計されています。</p>
+
+<table>
+<thead>
+<tr>
+<th>視点</th>
+<th>目標</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>短期的</strong>：運用の改善</td>
+<td>ルールを明文化し、誰でも同じ処理ができるようにする</td>
+</tr>
+<tr>
+<td><strong>長期的</strong>：自治会の改革</td>
+<td>非会員の応分負担と発言権を実現する賛助会員制への移行を見据えた設計</td>
+</tr>
+</tbody>
+</table>
+
+<p>「現金主義の方が分かりやすい」という主張は、<strong>現在の制度を前提にした短期的・運用的な観点</strong>からのものです。この資料は、それを超えた長期的な展望を持つ設計を示します。</p>
+
+<hr>
+
+<h2 id="1-会計の全体像">1. 会計の全体像</h2>
+
+<div class="mermaid">graph TD
+    A["第二自治会 会計"] --> B["一般会計\n（日常運営）"]
+    A --> C["特別会計①\n集会所積立金"]
+    A --> D["特別会計②\nゴミ集積ボックス管理"]
+    A --> E["募金\n（通過勘定・完全分離）"]
+    style A fill:#f5f5dc,stroke:#888
+    style B fill:#e8f5e9,stroke:#2e7d32
+    style C fill:#e3f2fd,stroke:#1565c0
+    style D fill:#e3f2fd,stroke:#1565c0
+    style E fill:#fce4ec,stroke:#ad1457
+</div>
+
+<hr>
+
+<h2 id="2-財源と用途の対応">2. 財源と用途の対応</h2>
+
+<p>各財源がどの会計に充当されるかを示します。</p>
+
+<table>
+<thead>
+<tr>
+<th>財源</th>
+<th>誰が負担</th>
+<th style="text-align:center">一般会計</th>
+<th style="text-align:center">特別①<br>集会所</th>
+<th style="text-align:center">特別②<br>ゴミ集積</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>自治会費からの積立</td>
+<td>会員</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>ゴミ集積所使用料</td>
+<td>非会員（現在）</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>賛助会員費</td>
+<td>賛助会員（検討中）</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center">✅</td>
+</tr>
+<tr>
+<td>募金として集めたお金</td>
+<td>地域住民・一般市民</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">—</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>📌 <strong>賛助会員費の意味</strong>：現在の「ゴミ集積所使用料」は、非会員がゴミ集積ボックスを利用するための一方的な徴収です。賛助会員制が導入されると、非会員は<strong>地域の共有インフラ（集会所・ゴミ集積ボックス）の維持積立に参加する者</strong>として位置づけられ、応分の負担と引き換えに発言権を得ることができます。</p>
+</blockquote>
+
+<hr>
+
+<h2 id="3-一般会計">3. 一般会計</h2>
+
+<h3 id="対象となる収支">対象となる収支</h3>
+
+<table>
+<thead>
+<tr>
+<th>区分</th>
+<th>科目例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>収入</strong></td>
+<td>自治会費（会員から徴収）</td>
+</tr>
+<tr>
+<td><strong>支出</strong></td>
+<td>印刷費、行事費、消耗品費、通信費など日常の運営費</td>
+</tr>
+<tr>
+<td><strong>振替</strong></td>
+<td>特別会計①・②への積立金繰入（規則に基づく）</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="積立金の繰入ルール">積立金の繰入ルール</h3>
+
+<p>自治会費の一部を特別会計に積み立てる金額・時期・方法は、<strong>会則または別途定める規則に明記</strong>します。口頭の申し合わせではなく、文書化されたルールに基づいて処理することで、会計係が変わっても同じ処理ができるようになります。</p>
+
+<div class="mermaid">graph LR
+    A["自治会費収入"] --> B["一般会計"]
+    B --> |"規則に基づく積立"| C["特別会計①\n集会所積立金"]
+    B --> |"規則に基づく積立"| D["特別会計②\nゴミ集積ボックス管理"]
+    style A fill:#e8f5e9,stroke:#2e7d32
+    style B fill:#e8f5e9,stroke:#2e7d32
+    style C fill:#e3f2fd,stroke:#1565c0
+    style D fill:#e3f2fd,stroke:#1565c0
+</div>
+
+<hr>
+
+<h2 id="4-特別会計-集会所積立金">4. 特別会計①（集会所積立金）</h2>
+
+<h3 id="目的と財源-1">目的と財源</h3>
+
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>目的</strong></td>
+<td>集会所の修繕・維持管理費用の積立と支出</td>
+</tr>
+<tr>
+<td><strong>財源</strong></td>
+<td>一般会計からの積立繰入</td>
+</tr>
+<tr>
+<td><strong>主な支出</strong></td>
+<td>集会所修繕費（大規模・小規模とも）、第一自治会への負担金精算</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="第一自治会との共同管理">第一自治会との共同管理</h3>
+
+<p>集会所は第一自治会・第二自治会が共同で管理しています。修繕費の精算方法と帳簿の書き方については、別資料を参照してください。</p>
+
+<blockquote>
+<p>📄 <a href="kaikan_account_structure.html">集会所の修繕費 — 会計のしかた（図解）</a></p>
+</blockquote>
+
+<hr>
+
+<h2 id="5-特別会計-ゴミ集積ボックス管理">5. 特別会計②（ゴミ集積ボックス管理）</h2>
+
+<h3 id="目的と財源-2">目的と財源</h3>
+
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>目的</strong></td>
+<td>ゴミ集積ボックスの維持管理・交換のための積立と支出</td>
+</tr>
+<tr>
+<td><strong>財源（現在）</strong></td>
+<td>一般会計からの積立繰入 ＋ ゴミ集積所使用料（非会員から）</td>
+</tr>
+<tr>
+<td><strong>財源（検討中）</strong></td>
+<td>一般会計からの積立繰入 ＋ 賛助会員費（賛助会員から）</td>
+</tr>
+<tr>
+<td><strong>主な支出</strong></td>
+<td>ゴミ集積ボックスの修繕・交換費用</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="先取り設計">先取り設計：賛助会員制への移行を見据えて</h3>
+
+<p>この特別会計の収入科目は「<strong>ゴミ集積所関連収入</strong>」として設計します。賛助会員制が導入された場合、科目の内訳が変わるだけで、会計構造は変わりません。</p>
+
+<div class="mermaid">graph LR
+    subgraph 現在
+        A1["ゴミ集積所使用料\n（非会員から徴収）"]
+    end
+    subgraph 検討中
+        A2["賛助会員費\n（賛助会員から）"]
+    end
+    A1 --> B["ゴミ集積所関連収入\n（科目名は同一）"]
+    A2 --> B
+    B --> C["特別会計②\nゴミ集積ボックス管理"]
+    style C fill:#e3f2fd,stroke:#1565c0
+</div>
+
+<blockquote>
+<p>📌 <strong>賛助会員制の意義</strong>：「使用料を払う非会員」から「インフラ維持積立に参加する賛助会員」への転換。応分の負担と引き換えに発言権が生まれ、自治会運営への参加の道が開かれます。この変化は会則改定が必要ですが、<strong>会計の構造変更は最小限で済む</strong>ように設計されています。</p>
+</blockquote>
+
+<hr>
+
+<h2 id="6-募金-完全分離">6. 募金（完全分離）</h2>
+
+<h3 id="なぜ完全分離か">なぜ完全分離か</h3>
+
+<p>募金は「住民から集めて、指定先に届ける」通過勘定です。自治会の収支に含めると、会計報告の金額が実態よりも大きく見え、監査の対象範囲も不明確になります。</p>
+
+<div class="mermaid">graph LR
+    A["地域住民"] --"募金を預ける"--> B["自治会（一時保管）"]
+    B --"全額送金"--> C["募金先団体\n（赤十字・社協など）"]
+    B -. "自治会の収支には\n含めない" .-x D["一般会計・特別会計"]
+    style D fill:#ffe0e0,stroke:#c00
+    style C fill:#e0ffe0,stroke:#080
+</div>
+
+<h3 id="処理方法">処理方法</h3>
+
+<table>
+<thead>
+<tr>
+<th>タイミング</th>
+<th>処理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>集金時</td>
+<td>募金専用の記録に収入として記録（自治会会計とは別帳簿）</td>
+</tr>
+<tr>
+<td>送金時</td>
+<td>送金先・金額・日付を記録、領収書を保管</td>
+</tr>
+<tr>
+<td>報告時</td>
+<td>会計報告とは別に「募金報告」として会員に報告</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="7-立替費用の分類ルール">7. 立替費用の分類ルール</h2>
+
+<p>事務局が立て替えた費用は、支払いの前に分類を確認してから記録します。<strong>2025年度の混乱の根本原因</strong>がここにあったため、特に重要なルールです。</p>
+
+<div class="mermaid">graph TD
+    A["立替費用が発生"] --> B{"何のための費用？"}
+    B --> |"日常の運営\n（印刷・行事・消耗品等）"| C["一般会計\nに記録"]
+    B --> |"集会所の修繕・維持"| D["特別会計①\n集会所積立金"]
+    B --> |"ゴミ集積ボックスの維持"| E["特別会計②\nゴミ集積ボックス管理"]
+    B --> |"募金として集めたお金"| F["募金記録\n（自治会会計から分離）"]
+    style C fill:#e8f5e9,stroke:#2e7d32
+    style D fill:#e3f2fd,stroke:#1565c0
+    style E fill:#e3f2fd,stroke:#1565c0
+    style F fill:#fce4ec,stroke:#ad1457
+</div>
+
+<blockquote>
+<p>⚠️ <strong>重要</strong>：一度の立替で複数の費用が混在する場合は、<strong>必ず科目ごとに分けて記録</strong>してください。「まとめて一般会計で記録して後で直す」はしないでください。後から分解することはできません。</p>
+</blockquote>
+
+<h3 id="判断に迷ったら">判断に迷ったら</h3>
+
+<table>
+<thead>
+<tr>
+<th>費用の種類</th>
+<th>会計の区分</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>回覧板・お知らせの印刷費</td>
+<td>一般会計</td>
+<td></td>
+</tr>
+<tr>
+<td>行事の備品・会場費</td>
+<td>一般会計</td>
+<td></td>
+</tr>
+<tr>
+<td>集会所の修繕・鍵修理など</td>
+<td>特別会計①</td>
+<td>第一自治会との費用分担あり</td>
+</tr>
+<tr>
+<td>ゴミ集積ボックスの修理・部品</td>
+<td>特別会計②</td>
+<td>第二自治会が独立して管理（分担なし）</td>
+</tr>
+<tr>
+<td>赤十字・社協などへの募金</td>
+<td>募金記録（分離）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="8-会計監査の信頼性向上">8. 会計監査の信頼性向上</h2>
+
+<p>この会計設計は、監査の信頼性向上に直接つながります。</p>
+
+<h3 id="2段階の監査体制">2段階の監査体制</h3>
+
+<p>会計監査は次の2段階で行います。</p>
+
+<table>
+<thead>
+<tr>
+<th>段階</th>
+<th>担当</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>第1段階</strong>：三役内部確認</td>
+<td>三役（会長・事務局長・会計係）</td>
+<td>運営の詳細を把握している立場から、科目分類の妥当性・記録漏れ・未精算の確認を行う</td>
+</tr>
+<tr>
+<td><strong>第2段階</strong>：会計監事による監査</td>
+<td>会計監事</td>
+<td>三役から独立した立場で、帳簿・領収書・送金記録を照合し、正確性・透明性を確認する</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>📌 <strong>なぜ2段階か</strong>：会計監事は運営の詳細に関わっていないため、科目の誤分類や慣例的な処理の問題には気づきにくい場合があります。三役が先に内部確認を行い、問題点を整理した上で会計監事に引き渡すことで、監査の実効性が高まります。</p>
+</blockquote>
+
+<h3 id="会計設計による監査しやすさの向上">会計設計による監査しやすさの向上</h3>
+
+<ul>
+<li><strong>明文化されたルール</strong>：口頭の申し合わせではなく、会則・規則に基づいて処理するため、監査時に根拠を示せる</li>
+<li><strong>分離された会計</strong>：一般会計・特別会計・募金が明確に分離されているため、混在による誤りが起きにくい</li>
+<li><strong>全額記録の原則</strong>：立替金は全額を支出として記録し、精算受取は収入として記録するため、領収書との照合が容易</li>
+<li><strong>募金の証拠書類</strong>：募金は自治会会計から分離して管理し、送金記録（送金先・金額・日付・受領確認）を証拠書類として保管する。監査時には募金記録と送金記録を照合して全額が届いていることを確認する</li>
+<li><strong>記録の突き合わせ</strong>：第一自治会との共同管理については、両自治会の記録を定期的に突き合わせて確認する</li>
+</ul>
+
+</div>
+      </div>
+
+    <script type="module">
+var MERMAID_CONFIG = ({"startOnLoad":false});
+if (typeof MERMAID_CONFIG !== 'undefined') {
+  MERMAID_CONFIG.startOnLoad = false
+  MERMAID_CONFIG.cloneCssStyles = false
+  MERMAID_CONFIG.theme = "default"
+}
+mermaid.initialize(MERMAID_CONFIG || {})
+if (typeof(window['Reveal']) !== 'undefined') {
+  function mermaidRevealHelper(event) {
+    var currentSlide = event.currentSlide
+    var diagrams = currentSlide.querySelectorAll('div.mermaid')
+    for (var i = 0; i < diagrams.length; i++) {
+      var diagram = diagrams[i]
+      if (!diagram.hasAttribute('data-processed')) {
+        mermaid.init(null, diagram, ()=> {
+          Reveal.slide(event.indexh, event.indexv)
+        })
+      }
+    }
+  }
+  Reveal.addEventListener('slidetransitionend', mermaidRevealHelper)
+  Reveal.addEventListener('ready', mermaidRevealHelper)
+  await mermaid.run({
+    nodes: document.querySelectorAll('div.mermaid')
+  })
+} else {
+  await mermaid.run({
+    nodes: document.querySelectorAll('div.mermaid')
+  })
+}
+</script>
+
+    </body></html>

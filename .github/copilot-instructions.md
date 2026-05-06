@@ -3,7 +3,9 @@
 
 **Purpose**: Initialize AI context for working with this repository
 
-> **On every session start**: Read [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) to get the current task and recent context before responding.
+> **On every session start**: Before responding to ANY first message, read [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) first, then output exactly this line at the top of your response:
+> `✅ Initialized (kannondai-community) — [現在のタスクを一言で]`
+> Then respond to the user's message.
 
 ---
 
