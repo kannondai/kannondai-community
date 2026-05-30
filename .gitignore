@@ -1,3 +1,6 @@
+# Machine-local files
+.github/vscode-version.txt
+
 # 一時ファイル・出力ファイル
 *.ics
 # *.json
