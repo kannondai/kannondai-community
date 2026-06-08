@@ -2,7 +2,7 @@
 
 ## BGM選曲リスト 月次更新手順
 
-対象ファイル: `docs/community/2025__/cafe_bgm_selection.html`
+対象ファイル: `docs/community/cafe_bgm_selection.html`
 
 ### 1. プレイリストから曲目を取得する
 
@@ -80,7 +80,7 @@ URLエンコードして貼り付ける。
 
 ```
 cd c:\Users\takahashi\GitHub\kannondai-community
-git add docs/community/2025__/cafe_bgm_selection.html
+git add docs/community/cafe_bgm_selection.html
 git commit -m "community: 第〇回BGM選曲リスト追加 (YYYY年M月)"
 git push
 ```
