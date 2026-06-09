@@ -16,6 +16,7 @@ __pycache__/
 # YouTube API認証情報
 tools/youtube_client_secret.json
 tools/token.json
+tools/bgm_data.json
 
 *.txt
 !tools/requirements.txt
