@@ -1,6 +1,6 @@
 # Project Status — kannondai-community (Public)
 
-**Last Updated**: 2026-05-06
+**Last Updated**: 2026-07-18
 
 > For working conventions and structure, see [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
@@ -8,13 +8,71 @@
 
 ## 🎯 Current Task
 
-**Working on**: 第二自治会 会計システム設計・説明資料の作成  
-**Next**: 説明資料のレビュー・会則改定案への連携  
-**See**: `docs/community/2026__/account_overview.html`
+**Working on**: サイトの機能改善とPWA対応  
+**Completed**: 集会所予約カレンダーのデータ蓄積機能、PWA対応  
+**Next**: PWA動作確認、ユーザーフィードバック収集
 
 ---
 
 ## 📋 Recent Work
+
+### 2026-07-18 — 集会所予約カレンダー改善 + PWA対応
+
+#### 1️⃣ 集会所予約カレンダーの改善
+
+**背景**: C-SQRの無料プランでは過去3ヶ月分のデータしか取得できないため、履歴が失われる問題があった。
+
+**実装内容**:
+- **信頼境界ベースのマージ機能** (`docs/scripts/fetch_reservations.py`)
+  - 新規データの最古日付を「信頼境界」として設定
+  - 信頼境界より古いデータは既存データから保持
+  - 信頼境界以降は新規データで完全置き換え（削除・変更を自動反映）
+  - データ保持期間: 730日（約2年）
+  
+- **週単位カレンダー表示** (`docs/scripts/hall-reserve.js`, `docs/styles/hall-reserve.css`)
+  - サークルスクエアと同じ表示方式に変更
+  - その月を含む週全体を表示（前月末〜翌月初めも含む）
+  - 前月・翌月の日付はグレーアウト表示
+
+- **システム概要ドキュメント** (`docs/scripts/SYSTEM_OVERVIEW.md`)
+  - データ取得・変換フローの説明
+  - 信頼境界マージの詳細
+  - 手動データ修正手順
+
+**コミット**: `938dd71`, `df94873`
+
+#### 2️⃣ PWA（Progressive Web App）対応
+
+**目的**: サイトをスマホアプリのように使えるようにし、オフライン閲覧を可能にする。
+
+**実装内容**:
+- **manifest.json** — アプリ設定（名前、アイコン、色など）
+- **service-worker.js** — オフライン対応とキャッシュ管理
+- **アプリアイコン** (`docs/icons/`)
+  - 192x192、512x512のPNG画像
+  - `generate_icons.py`で自動生成（仮デザイン）
+  
+- **カスタムインストールボタン** (`docs/top.html`)
+  - ヘッダーに「📱 アプリとして使う」ボタンを配置
+  - 自動プロンプトは抑制（ユーザーが煩わされない）
+  - iOS Safari、Android Chrome/Edge対応
+  
+- **PWA説明ドキュメント** (`docs/PWA_README.md`)
+  - 使い方（インストール・アンインストール）
+  - 通常のアプリとの違い
+  - トラブルシューティング
+
+**特徴**:
+- 従来のブラウザアクセスは完全に維持（PWAは追加オプション）
+- ホーム画面に追加してアプリ風に起動可能
+- オフライン閲覧、高速読み込み（キャッシュ）
+- 将来的にプッシュ通知も実装可能
+
+**コミット**: `61703d2`
+
+**動作確認**: GitHub Pages反映後（数分以内）
+
+---
 
 ### 2026-05-06 — 会計システム設計・説明資料作成（作業中）
 
