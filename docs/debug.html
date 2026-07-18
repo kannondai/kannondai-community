@@ -48,6 +48,14 @@
     <div id="event-log" style="font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;"></div>
   </div>
   
+  <div class="info">
+    <h2>🧪 PWAインストールテスト</h2>
+    <button id="install-test-button" style="background: #e74c3c; font-size: 18px; padding: 15px 30px;">
+      📱 今すぐインストールを試す
+    </button>
+    <p id="install-result" style="margin-top: 10px; font-weight: bold;"></p>
+  </div>
+  
   <button onclick="location.href='top.html'">メインページへ</button>
   
   <!-- Eruda デバッグツール -->
@@ -96,6 +104,13 @@
       deferredPrompt = e;
       addLog('✅ beforeinstallpromptイベント発火！');
       addLog(`→ PWAインストール可能です（画面幅: ${window.innerWidth}px）`);
+      
+      // ボタンを有効化
+      const installButton = document.getElementById('install-test-button');
+      if (installButton) {
+        installButton.style.background = '#27ae60';
+        installButton.textContent = '✅ インストール準備完了！タップしてください';
+      }
     });
     
     // 5秒後にイベント未発火の場合
@@ -107,12 +122,78 @@
         addLog('  2. PWA条件未達（HTTPS、manifest、Service Worker）');
         addLog('  3. ブラウザが非対応（iOS Safariなど）');
         addLog(`  4. 画面幅が広すぎる（現在: ${window.innerWidth}px）`);
+        
+        // ボタンのメッセージを更新
+        const installButton = document.getElementById('install-test-button');
+        if (installButton) {
+          installButton.textContent = '⚠️ タップして診断結果を表示';
+        }
       }
     }, 5000);
     
     // appinstalled イベント
     window.addEventListener('appinstalled', () => {
       addLog('🎉 PWAがインストールされました');
+    });
+    
+    // インストールテストボタン
+    const installButton = document.getElementById('install-test-button');
+    const installResult = document.getElementById('install-result');
+    
+    installButton.addEventListener('click', async () => {
+      installResult.textContent = '';
+      
+      if (!deferredPrompt) {
+        // beforeinstallprompt未発火の場合
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        if (isIOS) {
+          installResult.innerHTML = '❌ iOS Safari検出<br>手動でインストールしてください：<br>共有ボタン（□↑）→「ホーム画面に追加」';
+          installResult.style.color = '#f39c12';
+          addLog('iOS Safari: 手動インストール案内を表示');
+        } else {
+          installResult.innerHTML = '❌ インストールプロンプト未発火<br><br>原因の可能性：<br>1. PWA条件未達（manifest/SW/HTTPS）<br>2. Chrome設定でブロック<br>3. 既にインストール済み（ホーム画面確認）';
+          installResult.style.color = '#e74c3c';
+          addLog('エラー: beforeinstallpromptイベント未発火');
+          
+          // 追加診断
+          addLog('=== 追加診断 ===');
+          addLog(`Chrome version: ${navigator.userAgent.match(/Chrome\/(\d+)/)?.[1] || '不明'}`);
+          addLog(`HTTPS: ${location.protocol === 'https:'}`);
+          addLog(`SW ready: ${navigator.serviceWorker.controller ? 'あり' : 'なし'}`);
+        }
+        return;
+      }
+      
+      try {
+        addLog('🚀 インストールプロンプトを表示します...');
+        installResult.textContent = '📱 インストール中...';
+        installResult.style.color = '#3498db';
+        
+        // プロンプト表示
+        deferredPrompt.prompt();
+        
+        // ユーザーの選択を待つ
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+          installResult.textContent = '✅ インストール成功！ホーム画面を確認してください';
+          installResult.style.color = '#27ae60';
+          addLog('✅ ユーザーがインストールを承認');
+        } else {
+          installResult.textContent = '❌ インストールがキャンセルされました';
+          installResult.style.color = '#e67e22';
+          addLog('❌ ユーザーがインストールを拒否');
+        }
+        
+        // プロンプトクリア
+        deferredPrompt = null;
+        
+      } catch (error) {
+        installResult.textContent = `❌ エラー: ${error.message}`;
+        installResult.style.color = '#e74c3c';
+        addLog(`❌ インストールエラー: ${error.message}`);
+      }
     });
     
     addLog(`初期化完了 (画面幅: ${window.innerWidth}px)`);
