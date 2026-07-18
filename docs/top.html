@@ -347,6 +347,26 @@
     const installButton = document.getElementById('pwa-install-button');
     const installContainer = document.getElementById('pwa-install-container');
     
+    // デバッグ: 画面幅とボタン要素の存在確認
+    console.log('PWA Debug: 画面幅:', window.innerWidth, 'px');
+    console.log('PWA Debug: installButton:', installButton ? '存在' : '未発見');
+    console.log('PWA Debug: installContainer:', installContainer ? '存在' : '未発見');
+    console.log('PWA Debug: navigator.standalone:', navigator.standalone);
+    console.log('PWA Debug: matchMedia(display-mode: standalone):', window.matchMedia('(display-mode: standalone)').matches);
+    
+    // すでにインストール済みかチェック
+    if (navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('PWA Debug: 既にPWAとしてインストール済みです');
+    }
+    
+    // 5秒後にイベントが発火しなかった場合の警告
+    setTimeout(() => {
+      if (!deferredPrompt) {
+        console.warn('PWA Debug: beforeinstallprompt イベントが5秒以内に発火しませんでした');
+        console.warn('PWA Debug: 可能な原因: (1)既にインストール済み (2)PWA条件未達 (3)ブラウザ非対応');
+      }
+    }, 5000);
+    
     window.addEventListener('beforeinstallprompt', (e) => {
       // ブラウザのデフォルトバナーを表示しない
       e.preventDefault();
@@ -355,8 +375,9 @@
       // インストールボタンを表示
       if (installContainer) {
         installContainer.style.display = 'block';
+        console.log('PWA: インストールボタンを表示しました');
       }
-      console.log('PWA: インストールプロンプトを抑制しました（カスタムボタンを表示）');
+      console.log('PWA: beforeinstallprompt イベント発火 → カスタムボタンを表示');
     });
     
     // インストールボタンのクリックイベント
@@ -394,15 +415,24 @@
     });
     
     if ('serviceWorker' in navigator) {
+      console.log('PWA Debug: Service Worker API利用可能');
       window.addEventListener('load', () => {
+        console.log('PWA Debug: Service Worker登録を開始します...');
         navigator.serviceWorker.register('/kannondai-community/service-worker.js')
           .then(registration => {
-            console.log('Service Worker登録成功:', registration.scope);
+            console.log('PWA Debug: Service Worker登録成功:', registration.scope);
+            
+            // manifest.jsonの読み込み確認
+            fetch('/kannondai-community/manifest.json')
+              .then(r => r.ok ? console.log('PWA Debug: manifest.json読み込み成功') : console.error('PWA Debug: manifest.json読み込み失敗', r.status))
+              .catch(e => console.error('PWA Debug: manifest.json取得エラー', e));
           })
           .catch(error => {
-            console.log('Service Worker登録失敗:', error);
+            console.error('PWA Debug: Service Worker登録失敗:', error);
           });
       });
+    } else {
+      console.warn('PWA Debug: このブラウザはService Workerをサポートしていません');
     }
   </script>
 </body>
