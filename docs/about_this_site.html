@@ -11,6 +11,14 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="scripts/org_figure.js?v=default_8"></script>
   <script src="scripts/alternating_figures.js?v=default_5"></script> <!-- 交互表示用のスクリプトを追加 -->
+  
+  <!-- PWA対応 -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="観音台">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GG4KL3201Y"></script>
@@ -163,5 +171,31 @@
   <script src="scripts/cache-buster.js?v=5"></script>
   <script>addCacheBusterToLinks(["top.html"]);</script>
   <script src="scripts/contact.js?v=3"></script>
+  
+  <!-- PWA: Service Worker登録 -->
+  <script>
+    // ブラウザの自動「ホーム画面に追加」プロンプトを抑制
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // ブラウザのデフォルトバナーを表示しない
+      e.preventDefault();
+      // イベントを保存（将来、手動でインストールボタンを作る場合に使用可能）
+      deferredPrompt = e;
+      console.log('PWA: インストールプロンプトを抑制しました');
+    });
+    
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/kannondai-community/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker登録成功:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Service Worker登録失敗:', error);
+          });
+      });
+    }
+  </script>
 </body>
 </html>

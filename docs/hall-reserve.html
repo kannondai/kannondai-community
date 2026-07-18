@@ -21,6 +21,14 @@
     gtag('js', new Date());
     gtag('config', 'G-GG4KL3201Y');
   </script>
+  
+  <!-- PWA対応 -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="観音台">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body onload="checkPassword('f1543a61b26795e52f61a4662bf06963790ae08cf508d313935ae5af33bb4f4f', false, 'index.html', 'calendar_pw_hash', true)">
 <!-- Password Prompt Modal -->
@@ -96,5 +104,31 @@
     </tbody>
   </table>
 </noscript>
+
+<!-- PWA: Service Worker登録 -->
+<script>
+  // ブラウザの自動「ホーム画面に追加」プロンプトを抑制
+  let deferredPrompt;
+  
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // ブラウザのデフォルトバナーを表示しない
+    e.preventDefault();
+    // イベントを保存（将来、手動でインストールボタンを作る場合に使用可能）
+    deferredPrompt = e;
+    console.log('PWA: インストールプロンプトを抑制しました');
+  });
+  
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/kannondai-community/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker登録成功:', registration.scope);
+        })
+        .catch(error => {
+          console.log('Service Worker登録失敗:', error);
+        });
+    });
+  }
+</script>
 </body>
 </html>
