@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PWA Debug - 観音台コミュニティ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #2c3e50;
+      color: white;
+    }
+    .info {
+      background: #34495e;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 PWA デバッグページ</h1>
+  
+  <div class="info">
+    <h2>画面情報</h2>
+    <p id="screen-width"></p>
+    <p id="user-agent"></p>
+  </div>
+  
+  <div class="info">
+    <h2>PWA状態</h2>
+    <p id="pwa-status"></p>
+    <p id="sw-status"></p>
+  </div>
+  
+  <div class="info">
+    <h2>イベントログ</h2>
+    <div id="event-log" style="font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;"></div>
+  </div>
+  
+  <button onclick="location.href='top.html'">メインページへ</button>
+  
+  <!-- Eruda デバッグツール -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>
+    eruda.init();
+    
+    const log = document.getElementById('event-log');
+    function addLog(msg) {
+      const time = new Date().toLocaleTimeString('ja-JP');
+      log.innerHTML += `[${time}] ${msg}<br>`;
+      log.scrollTop = log.scrollHeight;
+    }
+    
+    // 画面情報
+    document.getElementById('screen-width').textContent = `画面幅: ${window.innerWidth}px`;
+    document.getElementById('user-agent').textContent = `UA: ${navigator.userAgent.substring(0, 50)}...`;
+    
+    // PWA状態チェック
+    const isStandalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+    document.getElementById('pwa-status').textContent = `PWAモード: ${isStandalone ? 'インストール済み' : '未インストール'}`;
+    
+    // Service Worker状態
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration('/kannondai-community/')
+        .then(reg => {
+          if (reg) {
+            document.getElementById('sw-status').textContent = `Service Worker: 登録済み (${reg.scope})`;
+            addLog('✅ Service Worker登録済み');
+          } else {
+            document.getElementById('sw-status').textContent = 'Service Worker: 未登録';
+            addLog('❌ Service Worker未登録');
+          }
+        });
+    } else {
+      document.getElementById('sw-status').textContent = 'Service Worker: 非対応ブラウザ';
+      addLog('❌ Service Worker非対応');
+    }
+    
+    // beforeinstallprompt イベント監視
+    let deferredPrompt;
+    addLog('⏳ beforeinstallpromptイベントを待機中...');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      addLog('✅ beforeinstallpromptイベント発火！');
+      addLog(`→ PWAインストール可能です（画面幅: ${window.innerWidth}px）`);
+    });
+    
+    // 5秒後にイベント未発火の場合
+    setTimeout(() => {
+      if (!deferredPrompt) {
+        addLog('⚠️ beforeinstallpromptが5秒以内に発火しませんでした');
+        addLog('可能な原因:');
+        addLog('  1. 既にPWAインストール済み');
+        addLog('  2. PWA条件未達（HTTPS、manifest、Service Worker）');
+        addLog('  3. ブラウザが非対応（iOS Safariなど）');
+        addLog(`  4. 画面幅が広すぎる（現在: ${window.innerWidth}px）`);
+      }
+    }, 5000);
+    
+    // appinstalled イベント
+    window.addEventListener('appinstalled', () => {
+      addLog('🎉 PWAがインストールされました');
+    });
+    
+    addLog(`初期化完了 (画面幅: ${window.innerWidth}px)`);
+  </script>
+</body>
+</html>
