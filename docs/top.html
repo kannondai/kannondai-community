@@ -118,7 +118,7 @@
       </span>
     </div>
     
-    <!-- PWA: アプリインストールボタン（初期状態は非表示） -->
+    <!-- PWA: アプリインストールボタン（初期状態は非表示、PCでは常に非表示） -->
     <div id="pwa-install-container" style="display: none; margin: 1em auto; max-width: 400px;">
       <button id="pwa-install-button" style="
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -140,6 +140,15 @@
         ホーム画面に追加して、アプリのように使えます
       </p>
     </div>
+    
+    <style>
+      /* PC（タブレット横向き以上）ではPWAボタンを非表示 */
+      @media (min-width: 769px) {
+        #pwa-install-container {
+          display: none !important;
+        }
+      }
+    </style>
   </header>
   <nav>
     <a href="community/index.html">観音台コミュニティ共有情報</a>
