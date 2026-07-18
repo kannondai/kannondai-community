@@ -99,6 +99,28 @@ table.calendar td.holiday-reserved.selected {
   font-size: 1em; /* 日付と名前の文字サイズを統一 */
 }
 
+/* 前月・翌月の日付（グレーアウト） */
+table.calendar td.other-month {
+  color: #999;
+  background-color: #f5f5f5;
+}
+
+table.calendar td.other-month.reserved {
+  background-color: #f0f4f8;
+  color: #7a9ec0;
+}
+
+table.calendar td.other-month.holiday {
+  background-color: #f0f8f0;
+  color: #7ab87a;
+}
+
+table.calendar td.other-month.holiday-reserved {
+  background: linear-gradient(135deg, #f0f8f0 60%, #f0f4f8 100%);
+  color: #7a9ec0;
+  border: 2px solid #7ab87a;
+}
+
 .holiday span, .holiday-reserved span {
   color: inherit; /* 親要素の色を継承 */
   font-size: 0.8em; /* 休日名のフォントサイズを調整 */

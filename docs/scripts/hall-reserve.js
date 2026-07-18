@@ -125,34 +125,57 @@ function initializeCalendar() {
   function renderCalendar(year, month) {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const startDay = firstDay.getDay();
-    const daysInMonth = lastDay.getDate();
+    
+    // その月の1日を含む週の日曜日を計算（表示開始日）
+    const calendarStartDate = new Date(firstDay);
+    calendarStartDate.setDate(firstDay.getDate() - firstDay.getDay());
+    
+    // その月の末日を含む週の土曜日を計算（表示終了日）
+    const calendarEndDate = new Date(lastDay);
+    calendarEndDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
 
     document.getElementById('currentMonth').textContent = `${year}年${month + 1}月`;
 
     const tbody = document.getElementById('calendarTable').querySelector('tbody');
     tbody.innerHTML = '';
     let tr = document.createElement('tr');
-    for (let i = 0; i < startDay; i++) {
-      tr.appendChild(document.createElement('td'));
-    }
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateObj = new Date(year, month, d);
-      const dateStr = `${year}-${pad(month + 1)}-${pad(d)}`;
-      const td = renderDayCell(dateObj, dateStr);
+    
+    // 表示開始日から終了日まで1日ずつループ
+    const currentDate = new Date(calendarStartDate);
+    let dayCount = 0;
+    
+    while (currentDate <= calendarEndDate) {
+      const dateObj = new Date(currentDate);
+      const dateStr = `${dateObj.getFullYear()}-${pad(dateObj.getMonth() + 1)}-${pad(dateObj.getDate())}`;
+      const isOtherMonth = dateObj.getMonth() !== month;
+      const td = renderDayCell(dateObj, dateStr, isOtherMonth);
       tr.appendChild(td);
-      if ((startDay + d) % 7 === 0 || d === daysInMonth) {
+      
+      dayCount++;
+      if (dayCount % 7 === 0) {
         tbody.appendChild(tr);
         tr = document.createElement('tr');
       }
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // 最後の行が未完成の場合は追加
+    if (tr.childElementCount > 0) {
+      tbody.appendChild(tr);
     }
   }
 
-  function renderDayCell(date, dateStr) {
+  function renderDayCell(date, dateStr, isOtherMonth = false) {
     const td = document.createElement('td');
     const holidayName = JapaneseHolidays.isHoliday(date);
     const res = sampleReservations[dateStr];
     const isReserved = !!res;
+    
+    // 他の月の日付にクラスを追加
+    if (isOtherMonth) {
+      td.classList.add('other-month');
+    }
 
     if (!detailMode) {
       if (holidayName) {
