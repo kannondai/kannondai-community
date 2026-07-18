@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import argparse
 import re
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 LOGIN_URL = "https://www.c-sqr.net/login"
 SCHEDULE_URL = "https://www.c-sqr.net/events?date=today"
@@ -99,8 +99,26 @@ def fetch_ics_file(filename="docs/scripts/events.ics", debug=False):
             print(f"iCalファイルを {filename} として保存しました。")
             return True
 
-def ics_to_custom_json(ics_path="docs/scripts/events.ics", json_path="docs/scripts/calendar-reservations.json"):
-    """iCalファイルをJSON形式に変換して保存する"""
+def ics_to_custom_json(ics_path="docs/scripts/events.ics", json_path="docs/scripts/calendar-reservations.json", keep_days=730):
+    """iCalファイルをJSON形式に変換し、既存データとマージして保存する
+    
+    Args:
+        ics_path: iCalファイルのパス
+        json_path: 出力JSONファイルのパス
+        keep_days: 過去何日分のデータを保持するか（デフォルト: 730日=約2年）
+    """
+    # 既存のJSONデータを読み込む（存在しない場合は空の辞書）
+    existing_data = {}
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+            print(f"既存データを読み込みました: {len(existing_data)} 日分")
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"既存データの読み込みに失敗しました: {e}")
+            existing_data = {}
+    
+    # 新規データを格納する辞書
     events_by_date = {}
 
     def parse_dt(dtstr):
@@ -145,9 +163,50 @@ def ics_to_custom_json(ics_path="docs/scripts/events.ics", json_path="docs/scrip
                 key, value = line.split(":", 1)
                 event[key] = value
 
+    # 既存データとマージ（削除を正しく反映するための信頼期間ベース）
+    print(f"新規データ: {len(events_by_date)} 日分")
+    
+    if events_by_date:
+        # 新規データの日付範囲を特定
+        new_dates = sorted(events_by_date.keys())
+        trust_boundary = new_dates[0]  # 新規データの最古の日付
+        print(f"信頼境界日付: {trust_boundary}（この日付以降は新規データを完全に信頼）")
+        
+        # 信頼境界より前の既存データのみ保持
+        old_data = {
+            date: events 
+            for date, events in existing_data.items() 
+            if date < trust_boundary
+        }
+        print(f"保持する古いデータ: {len(old_data)} 日分")
+        
+        # 新規データで置き換え（削除も反映される）
+        merged_data = old_data.copy()
+        merged_data.update(events_by_date)
+    else:
+        # 新規データがない場合は既存データをそのまま使用
+        merged_data = existing_data.copy()
+    
+    # 古いデータを削除（keep_days より古い日付）
+    cutoff_date = datetime.now() - timedelta(days=keep_days)
+    cutoff_str = cutoff_date.strftime("%Y-%m-%d")
+    
+    filtered_data = {
+        date: events 
+        for date, events in merged_data.items() 
+        if date >= cutoff_str
+    }
+    
+    removed_count = len(merged_data) - len(filtered_data)
+    if removed_count > 0:
+        print(f"{cutoff_str} より古いデータを {removed_count} 日分削除しました")
+    
+    # ソートして保存（日付順）
+    sorted_data = dict(sorted(filtered_data.items()))
+    
     with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(events_by_date, f, ensure_ascii=False, indent=2)
-    print(f"カレンダー用予約データを {json_path} に保存しました。")
+        json.dump(sorted_data, f, ensure_ascii=False, indent=2)
+    print(f"カレンダー用予約データを {json_path} に保存しました（合計: {len(sorted_data)} 日分）")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="iCal取得・変換スクリプト")
