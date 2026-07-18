@@ -44,6 +44,11 @@
   </div>
   
   <div class="info">
+    <h2>📊 PWA条件チェック</h2>
+    <div id="pwa-check" style="font-family: monospace; font-size: 14px;"></div>
+  </div>
+  
+  <div class="info">
     <h2>イベントログ</h2>
     <div id="event-log" style="font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;"></div>
   </div>
@@ -94,6 +99,57 @@
       document.getElementById('sw-status').textContent = 'Service Worker: 非対応ブラウザ';
       addLog('❌ Service Worker非対応');
     }
+    
+    // PWA条件の自動チェック
+    const checkDiv = document.getElementById('pwa-check');
+    checkDiv.innerHTML = '⏳ チェック中...';
+    
+    Promise.all([
+      // HTTPS チェック
+      Promise.resolve(location.protocol === 'https:'),
+      // manifest.json チェック
+      fetch('/kannondai-community/manifest.json').then(r => r.ok).catch(() => false),
+      // icon-192.png チェック
+      fetch('/kannondai-community/icons/icon-192.png').then(r => r.ok).catch(() => false),
+      // icon-512.png チェック
+      fetch('/kannondai-community/icons/icon-512.png').then(r => r.ok).catch(() => false),
+      // Service Worker active チェック
+      navigator.serviceWorker.getRegistration().then(r => r?.active ? true : false).catch(() => false),
+      // Chrome version チェック
+      Promise.resolve(parseInt(navigator.userAgent.match(/Chrome\/(\d+)/)?.[1] || '0'))
+    ]).then(([https, manifest, icon192, icon512, swActive, chromeVer]) => {
+      const results = [
+        { name: 'HTTPS', ok: https, value: location.protocol },
+        { name: 'manifest.json', ok: manifest, value: manifest ? '読み込み成功' : '読み込み失敗' },
+        { name: 'icon-192.png', ok: icon192, value: icon192 ? '存在' : '404 Not Found' },
+        { name: 'icon-512.png', ok: icon512, value: icon512 ? '存在' : '404 Not Found' },
+        { name: 'Service Worker', ok: swActive, value: swActive ? 'Active' : '未アクティブ' },
+        { name: 'Chrome Version', ok: chromeVer >= 100, value: chromeVer }
+      ];
+      
+      let html = '';
+      let allOk = true;
+      
+      results.forEach(r => {
+        const icon = r.ok ? '✅' : '❌';
+        html += `${icon} ${r.name}: ${r.value}<br>`;
+        if (!r.ok) allOk = false;
+        
+        // ログにも記録
+        addLog(`${icon} ${r.name}: ${r.value}`);
+      });
+      
+      html += '<br>';
+      if (allOk) {
+        html += '<strong style="color: #27ae60;">✅ 全条件クリア！</strong><br>';
+        html += 'beforeinstallpromptが発火しない場合は、Chrome側の追加条件（ユーザーエンゲージメント）が原因です。';
+      } else {
+        html += '<strong style="color: #e74c3c;">❌ 一部の条件が未達です</strong><br>';
+        html += '上記の❌項目を修正する必要があります。';
+      }
+      
+      checkDiv.innerHTML = html;
+    });
     
     // beforeinstallprompt イベント監視
     let deferredPrompt;
