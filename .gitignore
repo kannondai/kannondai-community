@@ -23,6 +23,8 @@ tools/bgm_data.json
 *.docx
 *.png
 !docs/page_url.png
+!docs/icons/icon-192.png
+!docs/icons/icon-512.png
 
 # Tools - 一時的なドキュメント置き場
 tools/documents/
