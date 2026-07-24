@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: '0 15 * * *'
   workflow_dispatch:
+    inputs:
+      force_update:
+        description: '強制的に予約データを更新'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 permissions:
   contents: write
