@@ -36,3 +36,33 @@ function addScriptWithCacheBuster(id, src, extra = "") {
   script.src = `${src}?v=${generateCacheBuster()}${extra}`;
   document.head.appendChild(script);
 }
+
+/**
+ * description内の相対リンクにキャッシュバスターを自動追加
+ * @param {string} description - HTMLを含む文字列
+ * @returns {string} - キャッシュバスター付きのHTML文字列
+ */
+function addCacheBusterToDescription(description) {
+  const cacheBuster = generateCacheBuster();
+  
+  // <a href="..."> のパターンを検出（外部リンクは除外）
+  return description.replace(/href="([^"]+)"/g, (match, url) => {
+    // 外部リンク（http/https）はそのまま
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return match;
+    }
+    
+    // 既にクエリパラメータがある場合は置き換え、ない場合は追加
+    if (url.includes('?')) {
+      // 既存のv=パラメータを置き換え
+      const newUrl = url.replace(/([?&])v=[^&]*/, `$1v=${cacheBuster}`);
+      // v=パラメータがなかった場合は追加
+      if (newUrl === url) {
+        return `href="${url}&v=${cacheBuster}"`;
+      }
+      return `href="${newUrl}"`;
+    } else {
+      return `href="${url}?v=${cacheBuster}"`;
+    }
+  });
+}

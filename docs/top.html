@@ -179,7 +179,7 @@
         },
         {
           date: '2026-07-25',
-          description: `「<a href="community/2026__/circulation_and_waste_fee_onepage.html?v=${cacheBuster}">ゴミ集積所使用料の問題 — 賛助会員制の提案</a>」を掲載しました。`
+          description: `「<a href="community/2026__/circulation_and_waste_fee_onepage.html">ゴミ集積所使用料の問題 — 賛助会員制の提案</a>」を掲載しました。`
         },
         {
           date: '2026-07-11',
@@ -191,7 +191,7 @@
         },
         {
           date: '2026-04-15',
-          description: `「<a href="community/2026__/community_overview_flyer.html?v=${cacheBuster}">観音台コミュニティプロジェクトについて</a>」を掲載しました。`
+          description: `「<a href="community/2026__/community_overview_flyer.html">観音台コミュニティプロジェクトについて</a>」を掲載しました。`
         },
         {
           date: '2026-04-15',
@@ -199,14 +199,16 @@
         },
         {
           date: '2026-04-01',
-          description: `「<a href="community/2026__/カフェ運営状況報告R8.html?v=${cacheBuster}">観音台カフェ 運営状況報告（令和7年7月〜令和8年3月）</a>」を掲載しました。`
+          description: `「<a href="community/2026__/カフェ運営状況報告R8.html">観音台カフェ 運営状況報告（令和7年7月〜令和8年3月）</a>」を掲載しました。`
         },
       ];
 
       const updateList = document.getElementById('update-list');
       updates.forEach(update => {
         const li = document.createElement('li');
-        li.innerHTML = `${update.date}: ${update.description}`;
+        // キャッシュバスターを自動追加
+        const descriptionWithCache = addCacheBusterToDescription(update.description);
+        li.innerHTML = `${update.date}: ${descriptionWithCache}`;
         updateList.appendChild(li);
       });
     </script>
