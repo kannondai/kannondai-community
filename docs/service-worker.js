@@ -1,5 +1,5 @@
 // Service Worker for 観音台コミュニティ情報 PWA
-const CACHE_NAME = 'kannondai-community-v1';
+const CACHE_NAME = 'kannondai-community-v2'; // バージョン更新: 2026-07-28
 const urlsToCache = [
   '/kannondai-community/',
   '/kannondai-community/top.html',
@@ -44,8 +44,37 @@ self.addEventListener('activate', (event) => {
   self.clients.claim(); // すべてのクライアントを即座に制御
 });
 
-// フェッチ時：キャッシュファースト戦略（オフライン対応）
+// フェッチ時：HTMLはネットワークファースト、その他はキャッシュファースト
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // HTMLファイルはネットワークファースト（常に最新版を取得）
+  if (event.request.method === 'GET' && 
+      (event.request.headers.get('accept').includes('text/html') || 
+       url.pathname.endsWith('.html'))) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // 成功したらキャッシュも更新
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // ネットワークエラー時はキャッシュから返す
+          return caches.match(event.request).then((cachedResponse) => {
+            return cachedResponse || caches.match('/kannondai-community/');
+          });
+        })
+    );
+    return;
+  }
+  
+  // その他のリソース（CSS, JS, 画像等）はキャッシュファースト
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -73,7 +102,6 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         // ネットワークもキャッシュも失敗した場合
-        // 必要に応じてフォールバックページを返す
         return caches.match('/kannondai-community/');
       })
   );
