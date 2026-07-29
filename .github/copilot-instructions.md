@@ -89,6 +89,7 @@ tools/
 - **Site is static HTML**: No build system — edit HTML files directly
 - **Character encoding**: Always UTF-8
 - **BGM page updates**: See `tools/README.md` for monthly update workflow
+- **BGM playlist access**: `tools/get_playlist.py` supports **unlisted playlists** via YouTube Data API OAuth2 — run `python get_playlist.py <URL>` in `tools/`; browser auth opens automatically if `token.json` is missing/expired
 - **Current work**: Check PROJECT_STATUS.md for latest tasks
 
 ---
