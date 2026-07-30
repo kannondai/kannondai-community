@@ -2,32 +2,44 @@ const data = {
   name: "区会連合会",
   children: [
     {
-      name: "谷田部支部",
+      name: "谷田部地区連合会",
       children: [
-        { name: "観音台第1自治会" },
-        { name: "観音台第2自治会" },
-        { name: "…" } // 他の区会を示唆
+        {
+          name: "谷田部支部",
+          children: [
+            { name: "観音台第1自治会" },
+            { name: "観音台第2自治会" },
+            { name: "…" } // 他の区会を示唆
+          ]
+        },
+        { name: "…", children: [] } // 他の支部を示唆
       ]
     },
     {
-      name: "〇〇支部",
+      name: "〇〇地区連合会",
       children: [
-        { name: "ＡＡ自治会" },
-        { name: "ＢＢ自治会" },
-        { name: "…" } // 他の区会を示唆
+        {
+          name: "〇〇支部",
+          children: [
+            { name: "ＡＡ自治会" },
+            { name: "ＢＢ自治会" },
+            { name: "…" } // 他の区会を示唆
+          ]
+        },
+        { name: "…", children: [] } // 他の支部を示唆
       ]
     },
     {
       name: "…",
-      children: [] // 他の支部を示唆
+      children: [] // 他の地区連合会を示唆
     }
   ]
 };
 
 const width = 800; // 横幅を拡大
-const height = 280; // 縦方向はそのまま
+const height = 380; // 4階層に合わせて縦を拡大
 
-const marginTop = (height - 200) / 2; // 上下の余白を調整
+const marginTop = 25; // 上余白（ルートノードの上端分を確保）
 
 let svg;
 
@@ -58,8 +70,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if ((a.data.name.includes("支部") && b.data.name.includes("支部")) ||
             (a.data.name === "…" && b.data.name.includes("支部")) ||
             (b.data.name === "…" && a.data.name.includes("支部"))) {
-          console.log(`支部間の隔を調整しています: ${a.data.name} と ${b.data.name}`);
-          return 1; // 「支部間の間隔を狭める
+          console.log(`支部間の間隔を調整しています: ${a.data.name} と ${b.data.name}`);
+          return 1; // 支部間の間隔
+        }
+        if ((a.data.name.includes("地区連合会") && b.data.name.includes("地区連合会")) ||
+            (a.data.name === "…" && b.data.name.includes("地区連合会")) ||
+            (b.data.name === "…" && a.data.name.includes("地区連合会"))) {
+          console.log(`地区連合会間の間隔を調整しています: ${a.data.name} と ${b.data.name}`);
+          return 1; // 地区連合会間の間隔
         }
       }
       console.log(`間隔: ${a.data.name} と ${b.data.name}, 値: 1`);
