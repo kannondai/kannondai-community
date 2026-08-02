@@ -168,7 +168,110 @@ python get_playlist.py <YouTubeプレイリストURL>
 | ファイル | 説明 |
 |----------|------|
 | `get_playlist.py` | YouTubeプレイリスト取得スクリプト（OAuth2認証対応） |
+| `create_offline_playlist.py` | YouTube再生リストのオフライン再生用HTMLプレイリスト生成ツール |
 | `bgm_data.json` | 取得した曲目データのキャッシュ |
 | `youtube_client_secret.json` | OAuth2クライアント認証情報 (**gitignore**) |
 | `token.json` | アクセストークン（初回認証後に自動生成） (**gitignore**) |
 | `extracted_documents.txt` | その他の一時文書 (**gitignore**) |
+
+---
+
+## オフライン再生プレイリスト生成（`create_offline_playlist.py`）
+
+### 目的
+
+YouTube Premium のオフライン保存機能を補完し、以下の利便性を向上させるツール：
+- **ループ再生**（YouTube Premium アプリでは不可）
+- **動画ごとの音量調整**（保存・復元機能付き）
+- **クロスプラットフォーム再生**（フォルダごとコピーで別マシンでも使用可能）
+
+### YouTube 利用規約への配慮
+
+このツールは `yt-dlp` を使用して動画をダウンロードします。  
+**YouTube Premium 契約のオフライン保存の範囲内での利用** を前提としています。
+
+**自主基準**（`docs/community/2025__/YouTube 自主基準.pdf` 参照）:
+- YouTube Premium 契約メンバーが一定比率で存在
+- 視聴回数貢献、高評価、チャンネル登録によるクリエイター支援
+- 非営利目的（観音台カフェでの BGM 利用）
+- 節度を保った適切な運用
+
+**免責**: YouTube 利用規約の解釈や法的判断については、ユーザーの責任において行ってください。
+
+### 使い方
+
+#### 1. 依存パッケージのインストール
+
+```bash
+# グローバル Python 3.14 環境（管理者権限 PowerShell）
+pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib yt-dlp
+```
+
+#### 2. OAuth2 認証情報の配置
+
+`get_playlist.py` と同じ認証情報を使用します。  
+`tools/youtube_client_secret.json` が既に存在する場合は不要です。
+
+#### 3. プレイリストのダウンロードと HTML 生成
+
+```bash
+cd E:\GitHub\kannondai-community\tools
+python create_offline_playlist.py "https://www.youtube.com/playlist?list=PLxxx"
+
+# 出力先を指定する場合
+python create_offline_playlist.py "https://www.youtube.com/playlist?list=PLxxx" E:\YouTube\offline-playlists
+```
+
+**初回実行時**: ブラウザが開いて OAuth2 認証を求められます。認証後、`token.json` が自動生成されます。
+
+#### 4. 生成されるファイル
+
+```
+E:\YouTube\offline-playlists\[再生リスト名]\
+  ├─ playlist.html        # ← ブラウザで開く
+  ├─ volumes.json         # 音量設定ファイル
+  ├─ 1-動画タイトル.mp4
+  ├─ 2-動画タイトル.mp4
+  └─ ...
+```
+
+### 音量調整機能（ポータブル対応）
+
+#### 調整方法
+
+1. `playlist.html` をブラウザで開く
+2. 各動画の右側にある音量スライダーで調整
+3. または、再生中にメイン音量スライダーで調整
+4. **「💾 音量設定を保存」ボタンをクリック**
+5. ダウンロードされた `volumes.json` で元のファイルを**上書き**
+
+#### ポータブル性
+
+`volumes.json` は以下の形式で保存されます：
+
+```json
+{
+  "1-video_title.mp4": 0.75,
+  "2-video_title.mp4": 1.0,
+  "3-video_title.mp4": 0.5
+}
+```
+
+**フォルダごとコピーすれば、別のマシンでも音量設定が保持されます。**
+
+### HTML プレイリストの機能
+
+- ✅ 自動繰り返し再生（ON/OFF 切替可能）
+- ✅ 前へ/次へボタン
+- ✅ 動画ごとの音量調整（自動保存・復元）
+- ✅ プレイリスト一覧（クリックで選択再生）
+- ✅ キーボード操作（← → R）
+- ✅ 完全オフライン動作（インターネット不要）
+- ✅ ポータブル（フォルダごとコピーで他のマシンでも動作）
+
+### 技術的背景
+
+**開発日**: 2026年8月2日  
+**開発理由**: YouTube Premium オフライン保存機能ではループ再生ができないため
+
+このツールは、YouTube Premium の正当な利用を前提とした **プレイリスト管理ツール** として機能します。
