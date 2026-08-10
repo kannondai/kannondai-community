@@ -172,9 +172,11 @@ function initializeCalendar() {
       } else if (typeof res === 'object' && res !== null) {
         detail += Object.entries(res).map(
           ([time, val]) =>
-            `<div style="display:flex;gap:0.5em;">
+            `<div style="display:flex;gap:0.5em;align-items:center;">
              <span style="min-width:3em;font-weight:bold;text-align:left;">${formatTime(time)}</span>
              <span style="flex:1;text-align:left;">${val}</span>
+             <button class="modify-btn" data-date="${dateStr}" data-time="${time}" data-group="${val}" style="padding:2px 8px;font-size:0.85em;background:#4CAF50;color:white;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">変更</button>
+             <button class="delete-btn" data-date="${dateStr}" data-time="${time}" data-group="${val}" style="padding:2px 8px;font-size:0.85em;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer;">削除</button>
            </div>`
         ).join('');
       } else if (typeof res === 'string') {
@@ -199,6 +201,25 @@ function initializeCalendar() {
     }
     
     document.getElementById('reserveDetail').innerHTML = detail;
+    
+    // 変更・削除ボタンにイベントリスナーを追加
+    document.querySelectorAll('.modify-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const date = e.target.dataset.date;
+        const time = e.target.dataset.time;
+        const group = e.target.dataset.group;
+        openModifyForm(date, time, group);
+      });
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const date = e.target.dataset.date;
+        const time = e.target.dataset.time;
+        const group = e.target.dataset.group;
+        confirmDelete(date, time, group);
+      });
+    });
   }
 
   function renderCalendar(year, month) {
@@ -341,7 +362,20 @@ function initializeCalendar() {
       // 予約フォームを表示して日付をセット
       const reservationForm = document.getElementById('reservationForm');
       const reserveDateInput = document.getElementById('reserveDate');
-      if (reservationForm && reserveDateInput) {
+      const form = document.getElementById('newReservationForm');
+      if (reservationForm && reserveDateInput && form) {
+        // フォームをリセット（新規予約モード）
+        form.reset();
+        delete form.dataset.mode;
+        delete form.dataset.originalDate;
+        delete form.dataset.originalTime;
+        
+        // 見出しを元に戻す
+        const heading = reservationForm.querySelector('h2');
+        if (heading) {
+          heading.textContent = '集会所予約を申し込む';
+        }
+        
         reservationForm.style.display = 'block';
         const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
         reserveDateInput.value = dateStr;
@@ -352,6 +386,80 @@ function initializeCalendar() {
     };
 
     return td;
+  }
+
+  function openModifyForm(date, time, group) {
+    // フォームを表示
+    const reservationForm = document.getElementById('reservationForm');
+    const form = document.getElementById('newReservationForm');
+    
+    if (!reservationForm || !form) return;
+    
+    // フォームを変更モードに設定
+    form.dataset.mode = 'modify';
+    form.dataset.originalDate = date;
+    form.dataset.originalTime = time;
+    
+    // 既存データをフォームに入力
+    document.getElementById('reserveDate').value = date;
+    document.getElementById('reserveGroup').value = group;
+    
+    // 時刻を分解して入力（終日の場合は00:00-23:59）
+    const isAllDay = (time === '00:00 - 23:59');
+    if (isAllDay) {
+      document.getElementById('allDayCheck').checked = true;
+      document.getElementById('reserveTimeStart').value = '00:00';
+      document.getElementById('reserveTimeEnd').value = '23:59';
+      document.getElementById('reserveTimeStart').disabled = true;
+      document.getElementById('reserveTimeEnd').disabled = true;
+      document.getElementById('reserveTimeStart').style.backgroundColor = '#f0f0f0';
+      document.getElementById('reserveTimeEnd').style.backgroundColor = '#f0f0f0';
+    } else {
+      const [start, end] = time.split(' - ');
+      document.getElementById('allDayCheck').checked = false;
+      document.getElementById('reserveTimeStart').value = start;
+      document.getElementById('reserveTimeEnd').value = end;
+      document.getElementById('reserveTimeStart').disabled = false;
+      document.getElementById('reserveTimeEnd').disabled = false;
+      document.getElementById('reserveTimeStart').style.backgroundColor = '';
+      document.getElementById('reserveTimeEnd').style.backgroundColor = '';
+    }
+    
+    // フォーム見出しを変更
+    const heading = reservationForm.querySelector('h2');
+    if (heading) {
+      heading.textContent = '予約を変更する';
+    }
+    
+    // フォームを表示してスクロール
+    reservationForm.style.display = 'block';
+    reservationForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  
+  function confirmDelete(date, time, group) {
+    const displayTime = (time === '00:00 - 23:59') ? '終日' : time;
+    const confirmed = confirm(
+      `以下の予約を削除しますか？\n\n` +
+      `日付: ${date}\n` +
+      `時間: ${displayTime}\n` +
+      `イベント名: ${group}`
+    );
+    
+    if (confirmed) {
+      // キャンセルメールを作成
+      const subject = encodeURIComponent(`集会所予約キャンセル ${date}`);
+      const body = encodeURIComponent(
+        `集会所の予約をキャンセルします。\n\n` +
+        `【日付】${date}\n` +
+        `【時間】${displayTime}\n` +
+        `【イベント名】${group}\n\n` +
+        `よろしくお願いいたします。`
+      );
+      const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
+      window.open(mailto, '_blank');
+      
+      alert('キャンセルメールを作成しました。\n約30分以内（最長30分）にカレンダーから削除されます。');
+    }
   }
 
   function changeMonth(diff) {
@@ -404,6 +512,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (closeFormBtn && reservationForm) {
     closeFormBtn.addEventListener('click', () => {
       reservationForm.style.display = 'none';
+      // フォームをリセット
+      const form = document.getElementById('newReservationForm');
+      if (form) {
+        form.reset();
+        delete form.dataset.mode;
+        delete form.dataset.originalDate;
+        delete form.dataset.originalTime;
+        // 見出しを元に戻す
+        const heading = reservationForm.querySelector('h2');
+        if (heading) {
+          heading.textContent = '集会所予約を申し込む';
+        }
+      }
     });
   }
   
@@ -449,6 +570,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const timeSlot = `${timeStart} - ${timeEnd}`;
       const displayTime = isAllDay ? '終日' : timeSlot;
       
+      // 変更モードかどうかを確認
+      const isModifyMode = form.dataset.mode === 'modify';
+      const originalDate = form.dataset.originalDate;
+      const originalTime = form.dataset.originalTime;
+      const originalDisplayTime = (originalTime === '00:00 - 23:59') ? '終日' : originalTime;
+      
       // localStorage に保存
       savePendingReservation(date, timeSlot, group);
       
@@ -458,19 +585,48 @@ document.addEventListener('DOMContentLoaded', () => {
       showReservationDetailForDate(dateObj);
       
       // Gmail 作成画面を開く
-      const subject = encodeURIComponent(`集会所予約 ${date}`);
-      const body = encodeURIComponent(
-        `集会所の予約をお願いします。\n\n` +
-        `【予約日】${date}\n` +
-        `【時間】${displayTime}\n` +
-        `【イベント名】${group}\n\n` +
-        `よろしくお願いいたします。`
-      );
+      let subject, body;
+      
+      if (isModifyMode) {
+        // 変更モード
+        subject = encodeURIComponent(`集会所予約変更 ${originalDate}`);
+        body = encodeURIComponent(
+          `集会所の予約を変更します。\n\n` +
+          `【元の日付】${originalDate}\n` +
+          `【元の時間】${originalDisplayTime}\n` +
+          `【新しい日付】${date}\n` +
+          `【新しい時間】${displayTime}\n` +
+          `【イベント名】${group}\n\n` +
+          `よろしくお願いいたします。`
+        );
+      } else {
+        // 新規予約モード
+        subject = encodeURIComponent(`集会所予約 ${date}`);
+        body = encodeURIComponent(
+          `集会所の予約をお願いします。\n\n` +
+          `【予約日】${date}\n` +
+          `【時間】${displayTime}\n` +
+          `【イベント名】${group}\n\n` +
+          `よろしくお願いいたします。`
+        );
+      }
+      
       const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
       window.open(mailto, '_blank');
       
       // フォームをリセット
       form.reset();
+      // 変更モードをクリア
+      delete form.dataset.mode;
+      delete form.dataset.originalDate;
+      delete form.dataset.originalTime;
+      
+      // 見出しを元に戻す
+      const heading = reservationForm.querySelector('h2');
+      if (heading) {
+        heading.textContent = '集会所予約を申し込む';
+      }
+      
       if (timeStartInput && timeEndInput) {
         timeStartInput.disabled = false;
         timeEndInput.disabled = false;
@@ -484,7 +640,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       // 成功メッセージ
-      alert('予約を送信しました。\n約30分以内（最長30分）にカレンダーに反映されます。');
+      const message = isModifyMode 
+        ? '変更を送信しました。\n約30分以内（最長30分）にカレンダーに反映されます。'
+        : '予約を送信しました。\n約30分以内（最長30分）にカレンダーに反映されます。';
+      alert(message);
     });
   }
 });
