@@ -456,9 +456,9 @@ function initializeCalendar() {
         `よろしくお願いいたします。`
       );
       const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
-      window.open(mailto, '_blank');
+      window.location.href = mailto;
       
-      alert('削除を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーから削除されます。');
+      alert('メール作成画面を開きます。\nそこで送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーから削除されます。');
     }
   }
 
@@ -617,19 +617,9 @@ function initializeCalendar() {
       const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
       console.log('[予約送信] mailto URL生成:', mailto.substring(0, 100) + '...');
       
-      try {
-        const mailWindow = window.open(mailto, '_blank');
-        if (!mailWindow) {
-          console.error('[予約送信] ポップアップがブロックされました');
-          alert('送信確認画面を開けませんでした。\nブラウザのポップアップブロックを解除してください。');
-          return;
-        }
-        console.log('[予約送信] メール画面を開きました');
-      } catch (error) {
-        console.error('[予約送信] エラー:', error);
-        alert('送信に失敗しました。\nブラウザの設定を確認してください。\n\nエラー: ' + error.message);
-        return;
-      }
+      // メール作成画面を開く
+      window.location.href = mailto;
+      console.log('[予約送信] メール画面を開きました');
       
       // フォームをリセット
       form.reset();
@@ -661,8 +651,8 @@ function initializeCalendar() {
       
       // 成功メッセージ
       const message = isModifyMode 
-        ? '変更を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。'
-        : '予約を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。';
+        ? 'メール作成画面を開きます。\nそこで送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。'
+        : 'メール作成画面を開きます。\nそこで送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。';
       alert(message);
       console.log('[予約送信] 処理完了');
     });
