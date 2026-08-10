@@ -7,6 +7,61 @@ const today = new Date();
 // グローバルスコープでメッセージを定義
 const DEFAULT_RESERVATION_MESSAGE = `日付を${isTouchDevice ? "タップ" : "クリック"}すると予約内容が表示されます。`;
 
+// ========================================
+// localStorage 管理（pending 予約）
+// ========================================
+
+// pending 予約を保存
+function savePendingReservation(date, timeSlot, group) {
+  const id = `pending-${Date.now()}`;
+  const pending = getPendingReservations();
+  pending.push({
+    id,
+    date,
+    timeSlot,
+    group,
+    status: 'pending',
+    submittedAt: new Date().toISOString()
+  });
+  localStorage.setItem('pendingReservations', JSON.stringify(pending));
+  return id;
+}
+
+// pending 予約を取得
+function getPendingReservations() {
+  const stored = localStorage.getItem('pendingReservations');
+  return stored ? JSON.parse(stored) : [];
+}
+
+// 30分経過した pending 予約を削除
+function cleanupExpiredReservations() {
+  const pending = getPendingReservations();
+  const now = new Date();
+  const filtered = pending.filter(item => {
+    const submitted = new Date(item.submittedAt);
+    const elapsed = (now - submitted) / 1000 / 60; // 分
+    return elapsed < 30;
+  });
+  localStorage.setItem('pendingReservations', JSON.stringify(filtered));
+}
+
+// pending 予約を削除（ID指定）
+function removePendingReservation(id) {
+  const pending = getPendingReservations();
+  const filtered = pending.filter(item => item.id !== id);
+  localStorage.setItem('pendingReservations', JSON.stringify(filtered));
+}
+
+// 指定日の pending 予約を取得
+function getPendingReservationsForDate(dateStr) {
+  const pending = getPendingReservations();
+  return pending.filter(item => item.date === dateStr);
+}
+
+// ========================================
+// 既存のコード
+// ========================================
+
 // 昨日の日付を計算して挿入
 function insertYesterdayDate() {
   const yesterday = new Date(today);
@@ -100,25 +155,44 @@ function initializeCalendar() {
   function showReservationDetailForDate(date) {
     const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
     const res = sampleReservations[dateStr];
-    let detail;
-    if (Array.isArray(res)) {
-      // 各予約を <div> で囲み、行を変えて表示
-      detail = `<strong>${dateStr}</strong><br>` + res.map(item => `<div>${item}</div>`).join('');
-    } else if (typeof res === 'object' && res !== null) {
-      // 各時間帯ごとに <div> で囲み、行を変えて表示
-      detail = `<strong>${dateStr}</strong><br>` +
-        Object.entries(res).map(
+    const pendingRes = getPendingReservationsForDate(dateStr);
+    
+    let detail = `<strong>${dateStr}</strong><br>`;
+    
+    // 確定予約（Confirmed）
+    if (res) {
+      detail += '<div style="margin-top: 10px;"><strong>🟢 確定予約</strong></div>';
+      if (Array.isArray(res)) {
+        detail += res.map(item => `<div>${item}</div>`).join('');
+      } else if (typeof res === 'object' && res !== null) {
+        detail += Object.entries(res).map(
           ([time, val]) =>
             `<div style="display:flex;gap:0.5em;">
              <span style="min-width:3em;font-weight:bold;text-align:left;">${time}</span>
              <span style="flex:1;text-align:left;">${val}</span>
            </div>`
         ).join('');
-    } else if (typeof res === 'string') {
-      detail = `<strong>${dateStr}</strong><br>${res}`;
-    } else {
-      detail = `<strong>${dateStr}</strong><br>予約はありません。`;
+      } else if (typeof res === 'string') {
+        detail += `<div>${res}</div>`;
+      }
     }
+    
+    // Pending 予約
+    if (pendingRes.length > 0) {
+      detail += '<div style="margin-top: 15px;"><strong>🟡 処理待ち予約</strong></div>';
+      detail += '<div style="font-size: 0.85em; color: #888; margin-bottom: 5px;">(送信後30分以内に確定予約に反映されます)</div>';
+      pendingRes.forEach(item => {
+        detail += `<div style="display:flex;gap:0.5em;">
+          <span style="min-width:3em;font-weight:bold;text-align:left;">${item.timeSlot}</span>
+          <span style="flex:1;text-align:left;">${item.group}</span>
+        </div>`;
+      });
+    }
+    
+    if (!res && pendingRes.length === 0) {
+      detail += '<div>予約はありません。</div>';
+    }
+    
     document.getElementById('reserveDetail').innerHTML = detail;
   }
 
@@ -170,7 +244,9 @@ function initializeCalendar() {
     const td = document.createElement('td');
     const holidayName = JapaneseHolidays.isHoliday(date);
     const res = sampleReservations[dateStr];
+    const pendingRes = getPendingReservationsForDate(dateStr);
     const isReserved = !!res;
+    const hasPending = pendingRes.length > 0;
     
     // 他の月の日付にクラスを追加
     if (isOtherMonth) {
@@ -179,8 +255,8 @@ function initializeCalendar() {
 
     if (!detailMode) {
       if (holidayName) {
-        td.classList.add(isReserved ? 'holiday-reserved' : 'holiday');
-        td.title = isReserved
+        td.classList.add((isReserved || hasPending) ? 'holiday-reserved' : 'holiday');
+        td.title = (isReserved || hasPending)
           ? `${holidayName}／予約あり`
           : holidayName;
         td.innerHTML = `${date.getDate()}<br>
@@ -188,10 +264,20 @@ function initializeCalendar() {
         if (isReserved) {
           td.innerHTML += `<br><span class="icon">${getReservationIcon(res)}</span>`;
         }
-      } else if (isReserved) {
+        if (hasPending) {
+          td.innerHTML += `<br><span class="icon">🟡</span>`;
+        }
+      } else if (isReserved || hasPending) {
         td.classList.add('reserved');
         td.title = "予約あり";
-        td.innerHTML = `${date.getDate()}<br><span class="icon">${getReservationIcon(res)}</span>`;
+        let icons = '';
+        if (isReserved) {
+          icons += getReservationIcon(res);
+        }
+        if (hasPending) {
+          icons += '🟡';
+        }
+        td.innerHTML = `${date.getDate()}<br><span class="icon">${icons}</span>`;
       } else {
         td.textContent = date.getDate();
       }
@@ -208,18 +294,24 @@ function initializeCalendar() {
           reservationHtml = res;
         }
       }
+      
+      // Pending 予約を追加
+      if (hasPending) {
+        const pendingHtml = pendingRes.map(p => `${p.timeSlot}: ${p.group}🟡`).join('<br>');
+        reservationHtml = reservationHtml ? `${reservationHtml}<br>${pendingHtml}` : pendingHtml;
+      }
 
       if (holidayName) {
-        td.classList.add(isReserved ? 'holiday-reserved' : 'holiday');
-        td.title = isReserved
+        td.classList.add((isReserved || hasPending) ? 'holiday-reserved' : 'holiday');
+        td.title = (isReserved || hasPending)
           ? `${holidayName}／${reservationHtml.replace(/<[^>]+>/g, '')}`
           : holidayName;
         td.innerHTML = `${date.getDate()}<br>
         <span>${holidayName}</span>`;
-        if (isReserved) {
+        if (isReserved || hasPending) {
           td.innerHTML += `<br><span class="reservation">${reservationHtml}</span>`;
         }
-      } else if (isReserved) {
+      } else if (isReserved || hasPending) {
         td.classList.add('reserved');
         td.title = reservationHtml.replace(/<[^>]+>/g, '');
         td.innerHTML = `${date.getDate()}<br><span class="reservation">${reservationHtml}</span>`;
@@ -285,4 +377,48 @@ document.addEventListener('DOMContentLoaded', () => {
   insertYesterdayDate();
   applyCacheBuster();
   initializeCalendar();
+  
+  // Pending 予約のクリーンアップ（30分経過したものを削除）
+  cleanupExpiredReservations();
+  
+  // 予約フォームの送信処理
+  const form = document.getElementById('newReservationForm');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const date = document.getElementById('reserveDate').value;
+      const timeStart = document.getElementById('reserveTimeStart').value;
+      const timeEnd = document.getElementById('reserveTimeEnd').value;
+      const group = document.getElementById('reserveGroup').value;
+      
+      const timeSlot = `${timeStart} - ${timeEnd}`;
+      
+      // localStorage に保存
+      savePendingReservation(date, timeSlot, group);
+      
+      // カレンダーを再描画
+      const dateObj = new Date(date + 'T00:00:00');
+      renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
+      showReservationDetailForDate(dateObj);
+      
+      // Gmail 作成画面を開く
+      const subject = encodeURIComponent(`集会所予約 ${date}`);
+      const body = encodeURIComponent(
+        `集会所の予約をお願いします。\n\n` +
+        `【予約日】${date}\n` +
+        `【時間】${timeSlot}\n` +
+        `【団体名】${group}\n\n` +
+        `よろしくお願いいたします。`
+      );
+      const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
+      window.open(mailto, '_blank');
+      
+      // フォームをリセット
+      form.reset();
+      
+      // 成功メッセージ
+      alert('予約申込メールを作成しました。\n\nGmailの作成画面で内容を確認して送信してください。\n送信後、約30分以内にカレンダーに反映されます。');
+    });
+  }
 });

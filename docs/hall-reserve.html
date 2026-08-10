@@ -75,8 +75,45 @@
   <div class="reserve-detail" id="reserveDetail">
     日付をクリックすると予約内容が表示されます。
   </div>
+  
+  <!-- 予約フォーム（認証済みユーザー向け） -->
+  <div class="reservation-form" id="reservationForm" style="margin-top: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 8px; max-width: 600px; margin-left: auto; margin-right: auto;">
+    <h2 style="margin-top: 0;">集会所予約を申し込む</h2>
+    <p style="font-size: 0.9em; color: #666;">メールで予約を申し込むと、約30分以内にカレンダーに反映されます。<br>送信直後は 🟡 pending 表示、自動処理完了後に 🟢 confirmed に変わります。</p>
+    
+    <form id="newReservationForm">
+      <div style="margin-bottom: 15px;">
+        <label for="reserveDate" style="display: block; font-weight: bold; margin-bottom: 5px;">予約日:</label>
+        <input type="date" id="reserveDate" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em;">
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label for="reserveTimeStart" style="display: block; font-weight: bold; margin-bottom: 5px;">開始時刻:</label>
+        <input type="time" id="reserveTimeStart" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em;">
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label for="reserveTimeEnd" style="display: block; font-weight: bold; margin-bottom: 5px;">終了時刻:</label>
+        <input type="time" id="reserveTimeEnd" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em;">
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label for="reserveGroup" style="display: block; font-weight: bold; margin-bottom: 5px;">団体名:</label>
+        <input type="text" id="reserveGroup" required placeholder="例: 第二自治会役員会" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em;">
+      </div>
+      
+      <button type="submit" style="width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
+        📧 予約メールを送信
+      </button>
+    </form>
+    
+    <p style="margin-top: 15px; font-size: 0.85em; color: #888;">
+      ※ 送信後、Gmailの作成画面が開きます。内容を確認して送信してください。<br>
+      ※ 送信後約30分でカレンダーに反映されます（最大30分）。
+    </p>
+  </div>
 </div>
-<script id="js-hall-reserve" src="scripts/hall-reserve.js?v=42"></script>
+<script id="js-hall-reserve" src="scripts/hall-reserve.js?v=43"></script>
 <script>
   const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   document.getElementById('click-or-tap').textContent = isTouch ? 'タップ' : 'クリック';
