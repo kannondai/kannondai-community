@@ -458,7 +458,7 @@ function initializeCalendar() {
       const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
       window.open(mailto, '_blank');
       
-      alert('キャンセルメールを作成しました。\n約30分以内（最長30分）にカレンダーから削除されます。');
+      alert('削除を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーから削除されます。');
     }
   }
 
@@ -641,8 +641,8 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // 成功メッセージ
       const message = isModifyMode 
-        ? '変更を送信しました。\n約30分以内（最長30分）にカレンダーに反映されます。'
-        : '予約を送信しました。\n約30分以内（最長30分）にカレンダーに反映されます。';
+        ? '変更を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。'
+        : '予約を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。';
       alert(message);
     });
   }
