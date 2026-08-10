@@ -496,15 +496,10 @@ function initializeCalendar() {
     document.getElementById('toggleDetail').textContent = detailMode ? '簡易表示' : '詳細表示';
     renderCalendar(currentYear, currentMonth);
   });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  insertYesterdayDate();
-  applyCacheBuster();
-  initializeCalendar();
   
-  // Pending 予約のクリーンアップ（30分経過したものを削除）
-  cleanupExpiredReservations();
+  // ========================================
+  // フォーム関連の処理（initializeCalendar 内で定義）
+  // ========================================
   
   // フォームを閉じるボタン
   const closeFormBtn = document.getElementById('closeFormBtn');
@@ -672,4 +667,13 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('[予約送信] 処理完了');
     });
   }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  insertYesterdayDate();
+  applyCacheBuster();
+  initializeCalendar();
+  
+  // Pending 予約のクリーンアップ（30分経過したものを削除）
+  cleanupExpiredReservations();
 });
