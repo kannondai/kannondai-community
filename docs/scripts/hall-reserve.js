@@ -1,6 +1,13 @@
 // デバイスがタッチデバイスかどうかを判定
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+// GAS Web API エンドポイント
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx0sW-zB6T72Syle3_xC-ZobeSZUTnCV5387MyLYu5dRmFuoZfkaSpZjiHP5z_eA99Y/exec';
+
+// URL パラメータからトークンを取得
+const urlParams = new URLSearchParams(window.location.search);
+const userToken = urlParams.get('token');
+
 // グローバルスコープで `today` を定義
 const today = new Date();
 
@@ -130,15 +137,37 @@ function initializeCalendar() {
   // サンプル予約データ
   let sampleReservations = {};
 
-  // JSONデータをフェッチ（キャッシュバスターを追加）
-  fetch(`scripts/calendar-reservations.json?v=${generateCacheBuster()}`)
-    .then(res => res.json())
+  // GAS API から予約データを取得
+  console.log('[データ取得] GAS API からデータ取得開始:', GAS_API_URL);
+  fetch(GAS_API_URL)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return res.json();
+    })
     .then(data => {
+      console.log('[データ取得] 取得成功:', Object.keys(data).length, '日分');
       sampleReservations = data;
       renderCalendar(currentYear, currentMonth);
       showReservationDetailForDate(today);
+      
+      // トークンがある場合、予約フォームを表示
+      if (userToken) {
+        console.log('[認証] トークン検出 - 予約フォームを有効化');
+        const reservationForm = document.getElementById('reservationForm');
+        if (reservationForm) {
+          // フォームを表示可能状態にする（実際の表示は空きセルクリック時）
+          reservationForm.dataset.enabled = 'true';
+        }
+      } else {
+        console.log('[認証] トークンなし - 閲覧モード');
+      }
     })
-    .catch(err => console.error('Error fetching reservations:', err));
+    .catch(err => {
+      console.error('[データ取得] エラー:', err);
+      alert('予約データの取得に失敗しました。しばらくしてから再度お試しください。');
+    });
 
   const minDate = new Date(today.getFullYear() - 1, today.getMonth(), 1);
   const maxDate = new Date(today.getFullYear() + 1, today.getMonth(), 1);
@@ -155,7 +184,7 @@ function initializeCalendar() {
   function showReservationDetailForDate(date) {
     const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
     const res = sampleReservations[dateStr];
-    const pendingRes = getPendingReservationsForDate(dateStr);
+    // Pending 予約は GAS 方式では不要
     
     let detail = `<strong>${dateStr}</strong><br>`;
     
@@ -166,37 +195,30 @@ function initializeCalendar() {
     
     // 確定予約（Confirmed）
     if (res) {
-      detail += '<div style="margin-top: 10px;"><strong>🟢 確定予約</strong></div>';
+      detail += '<div style="margin-top: 10px;"><strong>🟢 予約</strong></div>';
       if (Array.isArray(res)) {
         detail += res.map(item => `<div>${item}</div>`).join('');
       } else if (typeof res === 'object' && res !== null) {
         detail += Object.entries(res).map(
-          ([time, val]) =>
-            `<div style="display:flex;gap:0.5em;align-items:center;">
+          ([time, val]) => {
+            // トークンがある場合のみ変更・削除ボタンを表示
+            const buttons = userToken
+              ? `<button class="modify-btn" data-date="${dateStr}" data-time="${time}" data-group="${val}" style="padding:2px 8px;font-size:0.85em;background:#4CAF50;color:white;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">変更</button>
+                 <button class="delete-btn" data-date="${dateStr}" data-time="${time}" data-group="${val}" style="padding:2px 8px;font-size:0.85em;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer;">削除</button>`
+              : '';
+            return `<div style="display:flex;gap:0.5em;align-items:center;">
              <span style="min-width:3em;font-weight:bold;text-align:left;">${formatTime(time)}</span>
              <span style="flex:1;text-align:left;">${val}</span>
-             <button class="modify-btn" data-date="${dateStr}" data-time="${time}" data-group="${val}" style="padding:2px 8px;font-size:0.85em;background:#4CAF50;color:white;border:none;border-radius:3px;cursor:pointer;margin-right:4px;">変更</button>
-             <button class="delete-btn" data-date="${dateStr}" data-time="${time}" data-group="${val}" style="padding:2px 8px;font-size:0.85em;background:#f44336;color:white;border:none;border-radius:3px;cursor:pointer;">削除</button>
-           </div>`
+             ${buttons}
+           </div>`;
+          }
         ).join('');
       } else if (typeof res === 'string') {
         detail += `<div>${res}</div>`;
       }
     }
     
-    // Pending 予約
-    if (pendingRes.length > 0) {
-      detail += '<div style="margin-top: 15px;"><strong>🟡 処理待ち予約</strong></div>';
-      detail += '<div style="font-size: 0.85em; color: #888; margin-bottom: 5px;">(送信後30分以内に確定予約に反映されます)</div>';
-      pendingRes.forEach(item => {
-        detail += `<div style="display:flex;gap:0.5em;">
-          <span style="min-width:3em;font-weight:bold;text-align:left;">${formatTime(item.timeSlot)}</span>
-          <span style="flex:1;text-align:left;">${item.group}</span>
-        </div>`;
-      });
-    }
-    
-    if (!res && pendingRes.length === 0) {
+    if (!res) {
       detail += '<div>予約はありません。</div>';
     }
     
@@ -270,9 +292,8 @@ function initializeCalendar() {
     const td = document.createElement('td');
     const holidayName = JapaneseHolidays.isHoliday(date);
     const res = sampleReservations[dateStr];
-    const pendingRes = getPendingReservationsForDate(dateStr);
+    // Pending 予約は GAS 方式では不要（即座に反映されるため）
     const isReserved = !!res;
-    const hasPending = pendingRes.length > 0;
     
     // 他の月の日付にクラスを追加
     if (isOtherMonth) {
@@ -281,8 +302,8 @@ function initializeCalendar() {
 
     if (!detailMode) {
       if (holidayName) {
-        td.classList.add((isReserved || hasPending) ? 'holiday-reserved' : 'holiday');
-        td.title = (isReserved || hasPending)
+        td.classList.add(isReserved ? 'holiday-reserved' : 'holiday');
+        td.title = isReserved
           ? `${holidayName}／予約あり`
           : holidayName;
         td.innerHTML = `${date.getDate()}<br>
@@ -290,19 +311,10 @@ function initializeCalendar() {
         if (isReserved) {
           td.innerHTML += `<br><span class="icon">${getReservationIcon(res)}</span>`;
         }
-        if (hasPending) {
-          td.innerHTML += `<br><span class="icon">🟡</span>`;
-        }
-      } else if (isReserved || hasPending) {
+      } else if (isReserved) {
         td.classList.add('reserved');
         td.title = "予約あり";
-        let icons = '';
-        if (isReserved) {
-          icons += getReservationIcon(res);
-        }
-        if (hasPending) {
-          icons += '🟡';
-        }
+        let icons = getReservationIcon(res);
         td.innerHTML = `${date.getDate()}<br><span class="icon">${icons}</span>`;
       } else {
         td.textContent = date.getDate();
@@ -320,24 +332,18 @@ function initializeCalendar() {
           reservationHtml = res;
         }
       }
-      
-      // Pending 予約を追加
-      if (hasPending) {
-        const pendingHtml = pendingRes.map(p => `${p.timeSlot}: ${p.group}🟡`).join('<br>');
-        reservationHtml = reservationHtml ? `${reservationHtml}<br>${pendingHtml}` : pendingHtml;
-      }
 
       if (holidayName) {
-        td.classList.add((isReserved || hasPending) ? 'holiday-reserved' : 'holiday');
-        td.title = (isReserved || hasPending)
+        td.classList.add(isReserved ? 'holiday-reserved' : 'holiday');
+        td.title = isReserved
           ? `${holidayName}／${reservationHtml.replace(/<[^>]+>/g, '')}`
           : holidayName;
         td.innerHTML = `${date.getDate()}<br>
         <span>${holidayName}</span>`;
-        if (isReserved || hasPending) {
+        if (isReserved) {
           td.innerHTML += `<br><span class="reservation">${reservationHtml}</span>`;
         }
-      } else if (isReserved || hasPending) {
+      } else if (isReserved) {
         td.classList.add('reserved');
         td.title = reservationHtml.replace(/<[^>]+>/g, '');
         td.innerHTML = `${date.getDate()}<br><span class="reservation">${reservationHtml}</span>`;
@@ -359,26 +365,27 @@ function initializeCalendar() {
       renderCalendar(currentYear, currentMonth);
       showReservationDetailForDate(date);
       
-      // 予約フォームを表示して日付をセット
-      const reservationForm = document.getElementById('reservationForm');
-      const reserveDateInput = document.getElementById('reserveDate');
-      const form = document.getElementById('newReservationForm');
-      if (reservationForm && reserveDateInput && form) {
-        // フォームをリセット（新規予約モード）
-        form.reset();
-        delete form.dataset.mode;
-        delete form.dataset.originalDate;
-        delete form.dataset.originalTime;
-        
-        // 見出しを元に戻す
-        const heading = reservationForm.querySelector('h2');
-        if (heading) {
-          heading.textContent = '集会所予約を申し込む';
-        }
-        
-        reservationForm.style.display = 'block';
-        const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-        reserveDateInput.value = dateStr;
+      // トークンがある場合のみ予約フォームを表示
+      if (userToken) {
+        const reservationForm = document.getElementById('reservationForm');
+        const reserveDateInput = document.getElementById('reserveDate');
+        const form = document.getElementById('newReservationForm');
+        if (reservationForm && reserveDateInput && form) {
+          // フォームをリセット（新規予約モード）
+          form.reset();
+          delete form.dataset.mode;
+          delete form.dataset.originalDate;
+          delete form.dataset.originalTime;
+          
+          // 見出しを元に戻す
+          const heading = reservationForm.querySelector('h2');
+          if (heading) {
+            heading.textContent = '集会所予約を申し込む';
+          }
+          
+          reservationForm.style.display = 'block';
+          const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+          reserveDateInput.value = dateStr;
         
         // フォームにスムーズにスクロール
         reservationForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -550,11 +557,16 @@ function initializeCalendar() {
     });
   }
   
-  // 予約フォームの送信処理
+  // 予約フォームの送信処理（GAS API へ POST）
   const form = document.getElementById('newReservationForm');
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      if (!userToken) {
+        alert('予約にはトークンが必要です。');
+        return;
+      }
       
       console.log('[予約送信] フォーム送信開始');
       
@@ -567,94 +579,94 @@ function initializeCalendar() {
       console.log('[予約送信] 入力値:', { date, timeStart, timeEnd, group, isAllDay });
       
       const timeSlot = `${timeStart} - ${timeEnd}`;
-      const displayTime = isAllDay ? '終日' : timeSlot;
       
-      // 変更モードかどうかを確認
-      const isModifyMode = form.dataset.mode === 'modify';
-      const originalDate = form.dataset.originalDate;
-      const originalTime = form.dataset.originalTime;
-      const originalDisplayTime = (originalTime === '00:00 - 23:59') ? '終日' : originalTime;
-      
-      console.log('[予約送信] モード:', isModifyMode ? '変更' : '新規');
-      
-      // localStorage に保存
-      savePendingReservation(date, timeSlot, group);
-      console.log('[予約送信] localStorage保存完了');
-      
-      // カレンダーを再描画
-      const dateObj = new Date(date + 'T00:00:00');
-      renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
-      showReservationDetailForDate(dateObj);
-      console.log('[予約送信] カレンダー再描画完了');
-      
-      // Gmail 作成画面を開く
-      let subject, body;
-      
-      if (isModifyMode) {
-        // 変更モード
-        subject = encodeURIComponent(`集会所予約変更 ${originalDate}`);
-        body = encodeURIComponent(
-          `集会所の予約を変更します。\n\n` +
-          `【元の日付】${originalDate}\n` +
-          `【元の時間】${originalDisplayTime}\n` +
-          `【新しい日付】${date}\n` +
-          `【新しい時間】${displayTime}\n` +
-          `【イベント名】${group}\n\n` +
-          `よろしくお願いいたします。`
-        );
-      } else {
-        // 新規予約モード
-        subject = encodeURIComponent(`集会所予約 ${date}`);
-        body = encodeURIComponent(
-          `集会所の予約をお願いします。\n\n` +
-          `【予約日】${date}\n` +
-          `【時間】${displayTime}\n` +
-          `【イベント名】${group}\n\n` +
-          `よろしくお願いいたします。`
-        );
+      // 送信ボタンを無効化
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '送信中...';
       }
       
-      const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
-      console.log('[予約送信] mailto URL生成:', mailto.substring(0, 100) + '...');
-      
-      // メール作成画面を開く
-      window.location.href = mailto;
-      console.log('[予約送信] メール画面を開きました');
-      
-      // フォームをリセット
-      form.reset();
-      console.log('[予約送信] フォームリセット完了');
-      
-      // 変更モードをクリア
-      delete form.dataset.mode;
-      delete form.dataset.originalDate;
-      delete form.dataset.originalTime;
-      
-      // 見出しを元に戻す
-      const heading = reservationForm.querySelector('h2');
-      if (heading) {
-        heading.textContent = '集会所予約を申し込む';
+      try {
+        // GAS API へ POST
+        console.log('[予約送信] GAS API へ POST:', { date, timeSlot, group });
+        const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: userToken,
+            date: date,
+            timeSlot: timeSlot,
+            groupName: group
+          })
+        });
+        
+        const result = await response.json();
+        console.log('[予約送信] レスポンス:', result);
+        
+        if (!response.ok || result.error) {
+          throw new Error(result.error || `HTTP ${response.status}`);
+        }
+        
+        // 成功
+        alert('予約を受け付けました。数秒後にカレンダーに反映されます。');
+        
+        // フォームをリセット
+        form.reset();
+        
+        // 変更モードをクリア
+        delete form.dataset.mode;
+        delete form.dataset.originalDate;
+        delete form.dataset.originalTime;
+        
+        // 見出しを元に戻す
+        const reservationForm = document.getElementById('reservationForm');
+        const heading = reservationForm ? reservationForm.querySelector('h2') : null;
+        if (heading) {
+          heading.textContent = '集会所予約を申し込む';
+        }
+        
+        if (timeStartInput && timeEndInput) {
+          timeStartInput.disabled = false;
+          timeEndInput.disabled = false;
+          timeStartInput.style.backgroundColor = '';
+          timeEndInput.style.backgroundColor = '';
+        }
+        
+        // フォームを非表示
+        if (reservationForm) {
+          reservationForm.style.display = 'none';
+        }
+        
+        // 3秒後にデータ再取得してカレンダー更新
+        console.log('[予約送信] 3秒後にカレンダー更新');
+        setTimeout(async () => {
+          try {
+            const res = await fetch(GAS_API_URL);
+            const data = await res.json();
+            sampleReservations = data;
+            const dateObj = new Date(date + 'T00:00:00');
+            renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
+            showReservationDetailForDate(dateObj);
+            console.log('[予約送信] カレンダー更新完了');
+          } catch (err) {
+            console.error('[予約送信] カレンダー更新エラー:', err);
+          }
+        }, 3000);
+        
+      } catch (error) {
+        console.error('[予約送信] エラー:', error);
+        alert(`予約に失敗しました: ${error.message}`);
+      } finally {
+        // 送信ボタンを再有効化
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
       }
-      
-      if (timeStartInput && timeEndInput) {
-        timeStartInput.disabled = false;
-        timeEndInput.disabled = false;
-        timeStartInput.style.backgroundColor = '';
-        timeEndInput.style.backgroundColor = '';
-      }
-      
-      // フォームを非表示
-      if (reservationForm) {
-        reservationForm.style.display = 'none';
-        console.log('[予約送信] フォームを非表示にしました');
-      }
-      
-      // 成功メッセージ
-      const message = isModifyMode 
-        ? 'メール作成画面を開きます。\nそこで送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。'
-        : 'メール作成画面を開きます。\nそこで送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。';
-      alert(message);
-      console.log('[予約送信] 処理完了');
     });
   }
 }
