@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `集会所の予約をお願いします。\n\n` +
         `【予約日】${date}\n` +
         `【時間】${timeSlot}\n` +
-        `【団体名】${group}\n\n` +
+        `【イベント名】${group}\n\n` +
         `よろしくお願いいたします。`
       );
       const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
