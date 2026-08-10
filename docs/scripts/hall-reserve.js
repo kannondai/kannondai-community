@@ -561,11 +561,15 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       
+      console.log('[予約送信] フォーム送信開始');
+      
       const date = document.getElementById('reserveDate').value;
       const timeStart = document.getElementById('reserveTimeStart').value;
       const timeEnd = document.getElementById('reserveTimeEnd').value;
       const group = document.getElementById('reserveGroup').value;
       const isAllDay = allDayCheck && allDayCheck.checked;
+      
+      console.log('[予約送信] 入力値:', { date, timeStart, timeEnd, group, isAllDay });
       
       const timeSlot = `${timeStart} - ${timeEnd}`;
       const displayTime = isAllDay ? '終日' : timeSlot;
@@ -576,13 +580,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalTime = form.dataset.originalTime;
       const originalDisplayTime = (originalTime === '00:00 - 23:59') ? '終日' : originalTime;
       
+      console.log('[予約送信] モード:', isModifyMode ? '変更' : '新規');
+      
       // localStorage に保存
       savePendingReservation(date, timeSlot, group);
+      console.log('[予約送信] localStorage保存完了');
       
       // カレンダーを再描画
       const dateObj = new Date(date + 'T00:00:00');
       renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
       showReservationDetailForDate(dateObj);
+      console.log('[予約送信] カレンダー再描画完了');
       
       // Gmail 作成画面を開く
       let subject, body;
@@ -612,10 +620,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
-      window.open(mailto, '_blank');
+      console.log('[予約送信] mailto URL生成:', mailto.substring(0, 100) + '...');
+      
+      try {
+        const mailWindow = window.open(mailto, '_blank');
+        if (!mailWindow) {
+          console.error('[予約送信] ポップアップがブロックされました');
+          alert('送信確認画面を開けませんでした。\nブラウザのポップアップブロックを解除してください。');
+          return;
+        }
+        console.log('[予約送信] メール画面を開きました');
+      } catch (error) {
+        console.error('[予約送信] エラー:', error);
+        alert('送信に失敗しました。\nブラウザの設定を確認してください。\n\nエラー: ' + error.message);
+        return;
+      }
       
       // フォームをリセット
       form.reset();
+      console.log('[予約送信] フォームリセット完了');
+      
       // 変更モードをクリア
       delete form.dataset.mode;
       delete form.dataset.originalDate;
@@ -637,6 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // フォームを非表示
       if (reservationForm) {
         reservationForm.style.display = 'none';
+        console.log('[予約送信] フォームを非表示にしました');
       }
       
       // 成功メッセージ
@@ -644,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? '変更を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。'
         : '予約を送信しました。\n送信確認画面で送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーに反映されます。';
       alert(message);
+      console.log('[予約送信] 処理完了');
     });
   }
 });
