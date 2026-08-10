@@ -159,6 +159,11 @@ function initializeCalendar() {
     
     let detail = `<strong>${dateStr}</strong><br>`;
     
+    // 時刻を表示用に変換（00:00 - 23:59 → 終日）
+    const formatTime = (time) => {
+      return (time === '00:00 - 23:59') ? '終日' : time;
+    };
+    
     // 確定予約（Confirmed）
     if (res) {
       detail += '<div style="margin-top: 10px;"><strong>🟢 確定予約</strong></div>';
@@ -168,7 +173,7 @@ function initializeCalendar() {
         detail += Object.entries(res).map(
           ([time, val]) =>
             `<div style="display:flex;gap:0.5em;">
-             <span style="min-width:3em;font-weight:bold;text-align:left;">${time}</span>
+             <span style="min-width:3em;font-weight:bold;text-align:left;">${formatTime(time)}</span>
              <span style="flex:1;text-align:left;">${val}</span>
            </div>`
         ).join('');
@@ -183,7 +188,7 @@ function initializeCalendar() {
       detail += '<div style="font-size: 0.85em; color: #888; margin-bottom: 5px;">(送信後30分以内に確定予約に反映されます)</div>';
       pendingRes.forEach(item => {
         detail += `<div style="display:flex;gap:0.5em;">
-          <span style="min-width:3em;font-weight:bold;text-align:left;">${item.timeSlot}</span>
+          <span style="min-width:3em;font-weight:bold;text-align:left;">${formatTime(item.timeSlot)}</span>
           <span style="flex:1;text-align:left;">${item.group}</span>
         </div>`;
       });
@@ -332,6 +337,18 @@ function initializeCalendar() {
       selectedDate = new Date(date);
       renderCalendar(currentYear, currentMonth);
       showReservationDetailForDate(date);
+      
+      // 予約フォームを表示して日付をセット
+      const reservationForm = document.getElementById('reservationForm');
+      const reserveDateInput = document.getElementById('reserveDate');
+      if (reservationForm && reserveDateInput) {
+        reservationForm.style.display = 'block';
+        const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        reserveDateInput.value = dateStr;
+        
+        // フォームにスムーズにスクロール
+        reservationForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     };
 
     return td;
@@ -381,6 +398,42 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pending 予約のクリーンアップ（30分経過したものを削除）
   cleanupExpiredReservations();
   
+  // フォームを閉じるボタン
+  const closeFormBtn = document.getElementById('closeFormBtn');
+  const reservationForm = document.getElementById('reservationForm');
+  if (closeFormBtn && reservationForm) {
+    closeFormBtn.addEventListener('click', () => {
+      reservationForm.style.display = 'none';
+    });
+  }
+  
+  // 終日チェックボックスの処理
+  const allDayCheck = document.getElementById('allDayCheck');
+  const timeStartInput = document.getElementById('reserveTimeStart');
+  const timeEndInput = document.getElementById('reserveTimeEnd');
+  
+  if (allDayCheck && timeStartInput && timeEndInput) {
+    allDayCheck.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        // 終日をチェック → 時刻を無効化して00:00-23:59をセット
+        timeStartInput.value = '00:00';
+        timeEndInput.value = '23:59';
+        timeStartInput.disabled = true;
+        timeEndInput.disabled = true;
+        timeStartInput.style.backgroundColor = '#f0f0f0';
+        timeEndInput.style.backgroundColor = '#f0f0f0';
+      } else {
+        // 終日をチェック解除 → 時刻を有効化
+        timeStartInput.disabled = false;
+        timeEndInput.disabled = false;
+        timeStartInput.style.backgroundColor = '';
+        timeEndInput.style.backgroundColor = '';
+        timeStartInput.value = '';
+        timeEndInput.value = '';
+      }
+    });
+  }
+  
   // 予約フォームの送信処理
   const form = document.getElementById('newReservationForm');
   if (form) {
@@ -391,8 +444,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const timeStart = document.getElementById('reserveTimeStart').value;
       const timeEnd = document.getElementById('reserveTimeEnd').value;
       const group = document.getElementById('reserveGroup').value;
+      const isAllDay = allDayCheck && allDayCheck.checked;
       
       const timeSlot = `${timeStart} - ${timeEnd}`;
+      const displayTime = isAllDay ? '終日' : timeSlot;
       
       // localStorage に保存
       savePendingReservation(date, timeSlot, group);
@@ -407,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const body = encodeURIComponent(
         `集会所の予約をお願いします。\n\n` +
         `【予約日】${date}\n` +
-        `【時間】${timeSlot}\n` +
+        `【時間】${displayTime}\n` +
         `【イベント名】${group}\n\n` +
         `よろしくお願いいたします。`
       );
@@ -416,6 +471,17 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // フォームをリセット
       form.reset();
+      if (timeStartInput && timeEndInput) {
+        timeStartInput.disabled = false;
+        timeEndInput.disabled = false;
+        timeStartInput.style.backgroundColor = '';
+        timeEndInput.style.backgroundColor = '';
+      }
+      
+      // フォームを非表示
+      if (reservationForm) {
+        reservationForm.style.display = 'none';
+      }
       
       // 成功メッセージ
       alert('予約申込メールを作成しました。\n\nGmailの作成画面で内容を確認して送信してください。\n送信後、約30分以内にカレンダーに反映されます。');
