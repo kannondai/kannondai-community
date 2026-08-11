@@ -21,16 +21,6 @@ const DEFAULT_RESERVATION_MESSAGE = `日付を${isTouchDevice ? "タップ" : "�
 // ========================================
 
 // 昨日の日付を計算して挿入
-function insertYesterdayDate() {
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  const formattedDate = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-  const yesterdayElement = document.getElementById('yesterday-date');
-  if (yesterdayElement) {
-    yesterdayElement.textContent = formattedDate;
-  }
-}
-
 // キャッシュバスターを適用
 function applyCacheBuster() {
   addCacheBusterToElement('js-core-min');
@@ -624,7 +614,6 @@ function initializeCalendar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  insertYesterdayDate();
   applyCacheBuster();
   initializeCalendar();
 });
