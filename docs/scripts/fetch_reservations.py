@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 LOGIN_URL = "https://www.c-sqr.net/login"
 SCHEDULE_URL = "https://www.c-sqr.net/events?date=today"
+GAS_API_URL = "https://script.google.com/macros/s/AKfycby5deijDza0ky3NHDmH555-0IiPEliRyRMCYLQmzmWtpf_uWOaWYiSL09oKMFNi-aRd/exec"
 
 def fetch_ics_file(filename="docs/scripts/events.ics", debug=False):
     """iCalファイルを取得して保存する"""
@@ -208,17 +209,43 @@ def ics_to_custom_json(ics_path="docs/scripts/events.ics", json_path="docs/scrip
         json.dump(sorted_data, f, ensure_ascii=False, indent=2)
     print(f"カレンダー用予約データを {json_path} に保存しました（合計: {len(sorted_data)} 日分）")
 
+def upload_to_gas(json_path="docs/scripts/calendar-reservations.json", gas_url=GAS_API_URL):
+    """JSONデータをGAS APIに同期アップロードする。トークンは環境変数 HALL_RESERVE_TOKEN から取得。"""
+    token = os.environ.get("HALL_RESERVE_TOKEN")
+    if not token:
+        raise ValueError("環境変数 HALL_RESERVE_TOKEN が設定されていません。")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    payload = {"action": "sync", "token": token, "data": data}
+    print(f"GAS API に同期中... ({len(data)} 日分)")
+    resp = requests.post(gas_url, json=payload)
+    resp.raise_for_status()
+    result = resp.json()
+
+    if result.get("success"):
+        print(f"GAS同期成功: {result.get('message')} (信頼境界: {result.get('trustBoundary')})")
+    else:
+        print(f"GAS同期失敗: {result.get('error')}")
+    return result
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="iCal取得・変換スクリプト")
+    parser = argparse.ArgumentParser(description="iCal取得・変換・GAS同期スクリプト")
     parser.add_argument("--fetch", action="store_true", help="iCalファイルを取得する")
     parser.add_argument("--convert", action="store_true", help="icsファイルをJSONに変換する")
+    parser.add_argument("--upload", action="store_true", help="JSONデータをGAS APIに同期する")
     args = parser.parse_args()
 
     if args.fetch:
         fetch_ics_file()
     if args.convert:
         ics_to_custom_json()
-    if not args.fetch and not args.convert:
-        # デフォルトは両方実行
+    if args.upload:
+        upload_to_gas()
+    if not args.fetch and not args.convert and not args.upload:
+        # デフォルトは取得・変換・GAS同期を全て実行
         if fetch_ics_file():
             ics_to_custom_json()
+            upload_to_gas()
