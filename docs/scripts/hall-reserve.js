@@ -385,7 +385,7 @@ function initializeCalendar() {
     reservationForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   
-  function confirmDelete(date, time, group) {
+  async function confirmDelete(date, time, group) {
     const displayTime = (time === '00:00 - 23:59') ? '終日' : time;
     const confirmed = confirm(
       `以下の予約を削除しますか？\n\n` +
@@ -394,20 +394,58 @@ function initializeCalendar() {
       `イベント名: ${group}`
     );
     
-    if (confirmed) {
-      // キャンセルメールを作成
-      const subject = encodeURIComponent(`集会所予約キャンセル ${date}`);
-      const body = encodeURIComponent(
-        `集会所の予約をキャンセルします。\n\n` +
-        `【日付】${date}\n` +
-        `【時間】${displayTime}\n` +
-        `【イベント名】${group}\n\n` +
-        `よろしくお願いいたします。`
-      );
-      const mailto = `mailto:freesemt@gmail.com?subject=${subject}&body=${body}`;
-      window.location.href = mailto;
+    if (!confirmed) return;
+    
+    if (!userToken) {
+      alert('削除にはトークンが必要です。');
+      return;
+    }
+    
+    try {
+      console.log('[予約削除] GAS API へ DELETE:', { date, timeSlot: time });
       
-      alert('メール作成画面を開きます。\nそこで送信ボタンを押してください。\n約30分以内（最長30分）にカレンダーから削除されます。');
+      const response = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: userToken,
+          date: date,
+          timeSlot: time,
+          action: 'delete'
+        })
+      });
+      
+      const result = await response.json();
+      console.log('[予約削除] レスポンス:', result);
+      
+      if (!response.ok || result.error) {
+        throw new Error(result.error || `HTTP ${response.status}`);
+      }
+      
+      // 成功
+      alert('予約を削除しました。数秒後にカレンダーに反映されます。');
+      
+      // 3秒後にデータ再取得してカレンダー更新
+      console.log('[予約削除] 3秒後にカレンダー更新');
+      setTimeout(async () => {
+        try {
+          const res = await fetch(GAS_API_URL);
+          const data = await res.json();
+          sampleReservations = data;
+          const dateObj = new Date(date + 'T00:00:00');
+          renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
+          showReservationDetailForDate(dateObj);
+          console.log('[予約削除] カレンダー更新完了');
+        } catch (err) {
+          console.error('[予約削除] カレンダー更新エラー:', err);
+        }
+      }, 3000);
+      
+    } catch (error) {
+      console.error('[予約削除] エラー:', error);
+      alert(`削除に失敗しました: ${error.message}`);
     }
   }
 
