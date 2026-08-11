@@ -387,8 +387,9 @@ function initializeCalendar() {
           const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
           reserveDateInput.value = dateStr;
         
-        // フォームにスムーズにスクロール
-        reservationForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          // フォームにスムーズにスクロール
+          reservationForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
     };
 
@@ -605,6 +606,80 @@ function initializeCalendar() {
         });
         
         const result = await response.json();
+        console.log('[予約送信] レスポンス:', result);
+        
+        if (!response.ok || result.error) {
+          throw new Error(result.error || `HTTP ${response.status}`);
+        }
+        
+        // 成功
+        alert('予約を受け付けました。数秒後にカレンダーに反映されます。');
+        
+        // フォームをリセット
+        form.reset();
+        
+        // 変更モードをクリア
+        delete form.dataset.mode;
+        delete form.dataset.originalDate;
+        delete form.dataset.originalTime;
+        
+        // 見出しを元に戻す
+        const reservationForm = document.getElementById('reservationForm');
+        const heading = reservationForm ? reservationForm.querySelector('h2') : null;
+        if (heading) {
+          heading.textContent = '集会所予約を申し込む';
+        }
+        
+        if (timeStartInput && timeEndInput) {
+          timeStartInput.disabled = false;
+          timeEndInput.disabled = false;
+          timeStartInput.style.backgroundColor = '';
+          timeEndInput.style.backgroundColor = '';
+        }
+        
+        // フォームを非表示
+        if (reservationForm) {
+          reservationForm.style.display = 'none';
+        }
+        
+        // 3秒後にデータ再取得してカレンダー更新
+        console.log('[予約送信] 3秒後にカレンダー更新');
+        setTimeout(async () => {
+          try {
+            const res = await fetch(GAS_API_URL);
+            const data = await res.json();
+            sampleReservations = data;
+            const dateObj = new Date(date + 'T00:00:00');
+            renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
+            showReservationDetailForDate(dateObj);
+            console.log('[予約送信] カレンダー更新完了');
+          } catch (err) {
+            console.error('[予約送信] カレンダー更新エラー:', err);
+          }
+        }, 3000);
+        
+      } catch (error) {
+        console.error('[予約送信] エラー:', error);
+        alert(`予約に失敗しました: ${error.message}`);
+      } finally {
+        // 送信ボタンを再有効化
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  insertYesterdayDate();
+  applyCacheBuster();
+  initializeCalendar();
+  
+  // Pending 予約のクリーンアップ（30分経過したものを削除）
+  cleanupExpiredReservations();
+});
         console.log('[予約送信] レスポンス:', result);
         
         if (!response.ok || result.error) {
