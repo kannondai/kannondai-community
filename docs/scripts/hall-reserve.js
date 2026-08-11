@@ -2,7 +2,7 @@
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 // GAS Web API エンドポイント
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx0sW-zB6T72Syle3_xC-ZobeSZUTnCV5387MyLYu5dRmFuoZfkaSpZjiHP5z_eA99Y/exec';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycby5deijDza0ky3NHDmH555-0IiPEliRyRMCYLQmzmWtpf_uWOaWYiSL09oKMFNi-aRd/exec';
 
 // URL パラメータからトークンを取得
 const urlParams = new URLSearchParams(window.location.search);
