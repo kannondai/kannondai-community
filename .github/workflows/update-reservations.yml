@@ -23,10 +23,11 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4
 
-      - name: Fetch and convert iCal to JSON
+      - name: Fetch and convert iCal to JSON, sync to GAS
         env:
           CSQR_ACCOUNT: ${{ secrets.CSQR_ACCOUNT }}
           CSQR_PASSWORD: ${{ secrets.CSQR_PASSWORD }}
+          HALL_RESERVE_TOKEN: ${{ secrets.HALL_RESERVE_TOKEN }}
         run: python docs/scripts/fetch_reservations.py
 
       - name: Commit and push changes
