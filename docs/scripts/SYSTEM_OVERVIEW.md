@@ -96,8 +96,12 @@
 #### 3.2 JavaScript (`docs/scripts/hall-reserve.js`)
 
 **主要機能**:
-1. **データ取得**:
-   - `calendar-reservations.json` をフェッチ（キャッシュバスター付き）
+1. **データ取得（2026-08-12更新）**:
+   - **初期表示**: 静的JSON（`scripts/calendar-reservations.json`）をフェッチ
+     - GASのコールドスタート回避により高速化（0.1〜0.5秒程度）
+     - JSONは毎日9:00 JST（GitHub Actions）に自動更新
+   - **予約作成・削除後の更新**: GAS API から最新データを取得
+     - ユーザーが追加した予約を即座に反映
    - データを `sampleReservations` オブジェクトに格納
 
 2. **カレンダー描画**:
