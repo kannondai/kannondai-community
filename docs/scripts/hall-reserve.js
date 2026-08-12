@@ -80,7 +80,7 @@ function initializeCalendar() {
 
   // 静的JSONファイルから予約データを取得（高速）
   console.log('[データ取得] JSONファイルからデータ取得開始');
-  fetch('calendar-reservations.json')
+  fetch('scripts/calendar-reservations.json')
     .then(res => {
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
