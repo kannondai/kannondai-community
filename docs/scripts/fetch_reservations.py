@@ -210,7 +210,14 @@ def ics_to_custom_json(ics_path="docs/scripts/events.ics", json_path="docs/scrip
     print(f"カレンダー用予約データを {json_path} に保存しました（合計: {len(sorted_data)} 日分）")
 
 def upload_to_gas(json_path="docs/scripts/calendar-reservations.json", gas_url=GAS_API_URL):
-    """JSONデータをGAS APIに同期アップロードする。トークンは環境変数 HALL_RESERVE_TOKEN から取得。"""
+    """JSONデータをGAS APIに同期アップロードする。トークンは環境変数 HALL_RESERVE_TOKEN から取得。
+    
+    データ管理方式（2026-08-12時点）:
+    - サークルスクエア（C-SQR）→ JSON → GAS Sheets（一方向同期）
+    - ユーザーがGAS経由で作成・削除した予約は、GAS Sheetsにのみ存在
+    - カレンダー初期表示は静的JSON、予約CRUD後はGAS APIから最新データ取得
+    - この関数はGitHub Actions（毎日9:00 JST）から自動実行される
+    """
     token = os.environ.get("HALL_RESERVE_TOKEN")
     if not token:
         raise ValueError("環境変数 HALL_RESERVE_TOKEN が設定されていません。")

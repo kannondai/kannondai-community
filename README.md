@@ -14,6 +14,26 @@ The website provides information and resources for residents of the Kannondai ar
 - Community philosophy and governance discussions
 - Environmental initiatives and proposals
 
+## Technical Overview
+
+### Hall Reservation Calendar System
+
+**Data Flow** (as of 2026-08-12):
+```
+[C-SQR (CircleSquare)] 
+  ↓ Daily at 9:00 JST (GitHub Actions)
+[calendar-reservations.json] ← Initial display (fast, 0.1-0.5s)
+  ↓ Auto-sync
+[GAS Sheets] ← User CRUD via GAS API (immediate)
+```
+
+**Key Design**:
+- **Initial load**: Static JSON (avoids GAS cold start delay)
+- **After user CRUD**: GAS API fetch (ensures latest data)
+- **Auto-sync**: Daily at 9:00 JST from C-SQR to both JSON and GAS
+
+See [`docs/scripts/SYSTEM_OVERVIEW.md`](docs/scripts/SYSTEM_OVERVIEW.md) for details.
+
 ## Philosophy
 
 We believe that even small organizations, such as a neighborhood association, benefit from thoughtful rules and open discussion. Our site explores topics such as:

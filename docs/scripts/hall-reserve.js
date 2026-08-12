@@ -74,6 +74,14 @@ function getReservationIcon(reservation) {
 }
 
 // カレンダーの初期化
+// 
+// データ取得方式（2026-08-12変更）:
+// - 初期表示: 静的JSON (scripts/calendar-reservations.json) から取得
+//   → GASのコールドスタート回避により高速化（0.1〜0.5秒）
+//   → JSONは毎日9:00 JST（GitHub Actions）に自動更新
+// - 予約作成・削除後の更新: GAS API から最新データを取得
+//   → ユーザーが追加した予約を即座に反映
+//   → 削除後の確認処理（下記の confirmDelete、予約送信完了後を参照）
 function initializeCalendar() { 
   // サンプル予約データ
   let sampleReservations = {};
@@ -428,6 +436,7 @@ function initializeCalendar() {
       alert('予約を削除しました。数秒後にカレンダーに反映されます。');
       
       // 3秒後にデータ再取得してカレンダー更新
+      // ※ ここではGAS APIから取得（削除を即座に反映するため）
       console.log('[予約削除] 3秒後にカレンダー更新');
       setTimeout(async () => {
         try {
@@ -622,6 +631,7 @@ function initializeCalendar() {
         }
         
         // 3秒後にデータ再取得してカレンダー更新
+        // ※ ここではGAS APIから取得（新規予約を即座に反映するため）
         console.log('[予約送信] 3秒後にカレンダー更新');
         setTimeout(async () => {
           try {
