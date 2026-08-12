@@ -37,10 +37,12 @@ After reading this file, refer to:
 ```
 docs/
   index.html              # トップページ
-  top.html                # メインコンテンツページ
+  top.html                # メインコンテンツページ（更新履歴はここに表示）
   about_this_site.html    # サイト紹介
   hall-reserve.html       # 集会所予約
   org_chart.html          # 組織図
+  data/
+    updates.json          # ★ 更新履歴データ（top.html の更新履歴はここを編集する）
   climate-change/         # 気候変動関連ページ
   community/              # コミュニティ関連
   environment/            # 環境関連
@@ -91,6 +93,21 @@ tools/
 - **BGM page updates**: See `tools/README.md` for monthly update workflow
 - **BGM playlist access**: `tools/get_playlist.py` supports **unlisted playlists** via YouTube Data API OAuth2 — run `python get_playlist.py <URL>` in `tools/`; browser auth opens automatically if `token.json` is missing/expired
 - **Current work**: Check PROJECT_STATUS.md for latest tasks
+
+### 更新履歴の追加方法
+
+`top.html` の更新履歴は **`docs/data/updates.json`** で管理している。  
+「更新履歴に追加して」と言われたら `top.html` ではなく **`updates.json` の先頭に追記**する。
+
+```json
+{
+  "date": "YYYY-MM-DD",
+  "description": "「<a href=\"相対パス\">ページタイトル</a>」を掲載しました。"
+}
+```
+
+- `href` は `docs/` からの相対パス（例: `community/2026__/foo.html`）
+- 日付は降順（新しいものを先頭に）
 
 ---
 
