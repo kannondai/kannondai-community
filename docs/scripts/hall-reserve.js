@@ -1,7 +1,7 @@
 // デバイスがタッチデバイスかどうかを判定
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-// GAS Web API エンドポイント
+// GAS Web API エンドポイント（予約作成・削除・削除後の最新データ取得用）
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycby5deijDza0ky3NHDmH555-0IiPEliRyRMCYLQmzmWtpf_uWOaWYiSL09oKMFNi-aRd/exec';
 
 // URL パラメータからトークンを取得
@@ -78,9 +78,9 @@ function initializeCalendar() {
   // サンプル予約データ
   let sampleReservations = {};
 
-  // GAS API から予約データを取得
-  console.log('[データ取得] GAS API からデータ取得開始:', GAS_API_URL);
-  fetch(GAS_API_URL)
+  // 静的JSONファイルから予約データを取得（高速）
+  console.log('[データ取得] JSONファイルからデータ取得開始');
+  fetch('calendar-reservations.json')
     .then(res => {
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
