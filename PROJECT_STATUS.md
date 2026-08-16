@@ -1,6 +1,6 @@
 # Project Status — kannondai-community (Public)
 
-**Last Updated**: 2026-07-18
+**Last Updated**: 2026-08-12
 
 > For working conventions and structure, see [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
@@ -8,7 +8,7 @@
 
 ## 🎯 Current Task
 
-**Completed**: 集会所予約カレンダーの初期表示高速化  
+**Completed**: 集会所予約カレンダーの初期表示高速化、ドキュメント発見可能性向上  
 **Next**: GAS予約システムの実機テスト、役員への公開準備
 
 ---
@@ -34,6 +34,13 @@
 - ただし、予約作成・削除後はページ内で正しく表示される（GAS APIから取得）
 
 **コミット**: `076fc08`, `3910db8`
+
+**ドキュメント発見可能性の向上** (`docs/scripts/hall-reserve.js`, `fetch_reservations.py`, `README.md`):
+- アーキテクチャ判断理由をコード内コメントに追記（静的JSON vs GAS API）
+- Python スクリプトの docstring に詳細説明を追加
+- README に Technical Overview セクションを新設（データフローの図解）
+
+**コミット**: `db544c6`, `4b306bc`
 
 ---
 
