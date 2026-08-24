@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>プライバシーポリシー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="観音台コミュニティが運営する自動化ツール（集会所予約処理・電子回覧配信）のプライバシーポリシーです。">
+  <meta name="keywords" content="つくば市, 観音台, プライバシーポリシー">
+  <link rel="stylesheet" href="styles/top.css?v=3">
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GG4KL3201Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-GG4KL3201Y');
+</script>
+<body>
+  <header style="text-align:center;">
+    <h1>プライバシーポリシー</h1>
+    <p style="color:#fff; background:#2980b9; padding:0.7em; border-radius:6px; margin: 1em auto; max-width: 600px;">
+      観音台コミュニティが運営する自動化ツールにおける、個人情報の取り扱いについて説明します。
+    </p>
+  </header>
+  <main>
+    <section class="section-description">
+      <h2>🎯 対象となるツール</h2>
+      <p>
+        このポリシーは、観音台コミュニティの有志が運営する以下の自動化ツール（Gmail API を利用）に適用されます。
+      </p>
+      <ul>
+        <li>集会所予約メール自動処理ボット — 集会所予約に関するメールを読み取り、予約情報を更新します</li>
+        <li>電子回覧メール配信ツール — 電子回覧のお知らせを配信専用メーリングリストに送信します</li>
+      </ul>
+    </section>
+
+    <section class="section-description">
+      <h2>📋 取得・利用する情報</h2>
+      <p>
+        上記ツールは、Gmail API を通じて次の情報のみを取り扱います。
+      </p>
+      <ul>
+        <li>集会所予約に関するメールの本文・差出人アドレス（予約内容の抽出・処理のため）</li>
+        <li>電子回覧の配信を希望した方のメールアドレス（配信専用メーリングリストの管理のため）</li>
+      </ul>
+      <p>
+        氏名や住所など、メールアドレス以外の個人情報は収集・保有しません。
+      </p>
+    </section>
+
+    <section class="section-description">
+      <h2>🔒 情報の管理</h2>
+      <p>
+        取得した情報は、上記の目的以外に利用しません。第三者への提供・販売は行いません。<br>
+        処理は GitHub Actions（非公開リポジトリ）上で実行され、メールの送受信には運営者の Gmail アカウントのみを使用します。
+      </p>
+    </section>
+
+    <section class="section-description">
+      <h2>🗑️ 削除・配信停止のご希望</h2>
+      <p>
+        電子回覧の配信停止、またはメールアドレスの削除をご希望の場合は、
+        <a href="about_this_site.html#contact" style="color: #2980b9; text-decoration: underline;">こちらの連絡先</a>
+        までご連絡ください。
+      </p>
+    </section>
+
+    <p style="text-align: center; margin: 1em 0;">
+      <a href="top.html" style="color: #2980b9; text-decoration: underline;">
+        トップページに戻る
+      </a>
+    </p>
+  </main>
+
+  <footer style="text-align:center;">
+    &copy; 2026 Kannondai Community Volunteers<br>
+    Created with <a href="https://github.com/features/copilot" style="color: #fff; text-decoration: underline;">GitHub Copilot</a>.
+  </footer>
+
+  <script src="scripts/cache-buster.js?v=5"></script>
+  <script>addCacheBusterToLinks(["top.html"]);</script>
+</body>
+</html>
