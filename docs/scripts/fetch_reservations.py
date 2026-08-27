@@ -243,16 +243,17 @@ if __name__ == "__main__":
     parser.add_argument("--fetch", action="store_true", help="iCalファイルを取得する")
     parser.add_argument("--convert", action="store_true", help="icsファイルをJSONに変換する")
     parser.add_argument("--upload", action="store_true", help="JSONデータをGAS APIに同期する")
+    parser.add_argument("--debug", action="store_true", help="ログイン・スケジュールページのHTML等をデバッグ用に保存する")
     args = parser.parse_args()
 
     if args.fetch:
-        fetch_ics_file()
+        fetch_ics_file(debug=args.debug)
     if args.convert:
         ics_to_custom_json()
     if args.upload:
         upload_to_gas()
     if not args.fetch and not args.convert and not args.upload:
         # デフォルトは取得・変換・GAS同期を全て実行
-        if fetch_ics_file():
+        if fetch_ics_file(debug=args.debug):
             ics_to_custom_json()
             upload_to_gas()
