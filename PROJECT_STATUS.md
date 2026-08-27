@@ -1,6 +1,6 @@
 # Project Status — kannondai-community (Public)
 
-**Last Updated**: 2026-08-12
+**Last Updated**: 2026-08-28
 
 > For working conventions and structure, see [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
@@ -8,8 +8,19 @@
 
 ## 🎯 Current Task
 
-**Completed**: 集会所予約カレンダーの初期表示高速化、ドキュメント発見可能性向上  
+**Completed**: 集会所予約カレンダーの「サークルスクエア専用データが消える」不具合の調査・修正（jichikai-2-priv側のマージ修正とセット）  
 **Next**: GAS予約システムの実機テスト、役員への公開準備
+
+---
+
+## 📋 2026-08-28　集会所予約カレンダー：10/4データ消失の調査・修正 ✅
+
+- `fetch_reservations.py` に `--debug` フラグを追加（ログイン・スケジュールページのHTML保存に対応、既存の `debug` 引数がCLIに未接続だった）
+- 手動フェッチでサークルスクエア取得自体は正常に動作していることを確認（10/4のカフェ予約を含むICSを取得）
+- 根本原因は `jichikai-2-priv` 側の30分毎ボット同期が公開JSONを完全上書きしていたこと（詳細は jichikai-2-priv の PROJECT_STATUS.md 参照）
+- `docs/scripts/calendar-reservations.json` を最新データで更新・コミット・プッシュ（10/4反映確認済み）
+
+**コミット**: `aaef41d`
 
 ---
 
