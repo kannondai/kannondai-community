@@ -105,10 +105,13 @@ def download_playlist(playlist_url, output_dir):
     print(f"\n動画をダウンロード中: {output_dir}")
     
     # yt-dlp コマンド（グローバルPython 3.14環境を使用）
+    # 単一ファイルの結合済みストリームはYouTube側で提供されなくなったため、
+    # 映像+音声を別々に取得しffmpegでmp4に結合する（画質は1080pまでに制限）
     cmd = [
         'py', '-3.14', '-m', 'yt_dlp',
         '-o', str(output_dir / '%(playlist_index)s-%(title)s.%(ext)s'),
-        '--format', 'best[ext=mp4]/best',  # mp4優先
+        '--format', 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080][ext=mp4]/best[height<=1080]',
+        '--merge-output-format', 'mp4',
         '--restrict-filenames',  # ファイル名を安全に
         playlist_url
     ]
