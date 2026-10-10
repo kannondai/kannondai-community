@@ -24,7 +24,9 @@ function addCacheBusterToLinks(links, extra = '') {
   links.forEach(link => {
     const anchor = document.querySelector(`a[href="${link}"]`);
     if (anchor) {
-      anchor.href = `${link}?v=${generateCacheBuster()}${extra}`;
+      const pageVersion = anchor.dataset.cacheVersion;
+      const version = pageVersion ? `${generateCacheBuster()}-${pageVersion}` : generateCacheBuster();
+      anchor.href = `${link}?v=${version}${extra}`;
     }
   });
 }
