@@ -95,6 +95,7 @@
 - トップページと共有情報ページのカレンダーリンクには、日付に加えてカレンダー固有の版番号を付ける
 - カレンダーページを更新した場合は、両ページのリンクにある `data-cache-version` も更新する
 - 更新ボタンではJSON URLに一時的なクエリを付け、キャッシュなしで再取得
+- 旧Service Workerが端末に残っている場合は、`cleanup-service-worker.js` が更新・解除し、旧キャッシュを削除する
 
 #### 3.2 JavaScript (`docs/scripts/hall-reserve.js`)
 
