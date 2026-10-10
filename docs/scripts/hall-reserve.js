@@ -85,38 +85,7 @@ function getReservationIcon(reservation) {
 function initializeCalendar() { 
   // サンプル予約データ
   let sampleReservations = {};
-
-  // 静的JSONファイルから予約データを取得（高速）
-  console.log('[データ取得] JSONファイルからデータ取得開始');
-  fetch('scripts/calendar-reservations.json')
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      return res.json();
-    })
-    .then(data => {
-      console.log('[データ取得] 取得成功:', Object.keys(data).length, '日分');
-      sampleReservations = data;
-      renderCalendar(currentYear, currentMonth);
-      showReservationDetailForDate(today);
-      
-      // トークンがある場合、予約フォームを表示
-      if (userToken) {
-        console.log('[認証] トークン検出 - 予約フォームを有効化');
-        const reservationForm = document.getElementById('reservationForm');
-        if (reservationForm) {
-          // フォームを表示可能状態にする（実際の表示は空きセルクリック時）
-          reservationForm.dataset.enabled = 'true';
-        }
-      } else {
-        console.log('[認証] トークンなし - 閲覧モード');
-      }
-    })
-    .catch(err => {
-      console.error('[データ取得] エラー:', err);
-      alert('予約データの取得に失敗しました。しばらくしてから再度お試しください。');
-    });
+  let latestLoadRequest = 0;
 
   const minDate = new Date(today.getFullYear() - 1, today.getMonth(), 1);
   const maxDate = new Date(today.getFullYear() + 1, today.getMonth(), 1);
@@ -125,6 +94,73 @@ function initializeCalendar() {
   let currentMonth = today.getMonth();
   let detailMode = false; // 詳細表示モードのフラグ
   let selectedDate = new Date(today); // 初期値は今日
+
+  async function loadReservationData(forceRefresh = false) {
+    const requestId = ++latestLoadRequest;
+    console.log(`[データ取得] JSONファイルからデータ取得開始${forceRefresh ? '（キャッシュを使用しない）' : ''}`);
+    const url = new URL('scripts/calendar-reservations.json', window.location.href);
+    const options = {};
+    if (forceRefresh) {
+      url.searchParams.set('_', Date.now().toString());
+      options.cache = 'no-store';
+    }
+
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (requestId !== latestLoadRequest) {
+      return;
+    }
+
+    console.log('[データ取得] 取得成功:', Object.keys(data).length, '日分');
+    sampleReservations = data;
+    renderCalendar(currentYear, currentMonth);
+    showReservationDetailForDate(selectedDate);
+
+    if (userToken) {
+      console.log('[認証] トークン検出 - 予約フォームを有効化');
+      const reservationForm = document.getElementById('reservationForm');
+      if (reservationForm) {
+        reservationForm.dataset.enabled = 'true';
+      }
+    } else {
+      console.log('[認証] トークンなし - 閲覧モード');
+    }
+  }
+
+  loadReservationData().catch(err => {
+    console.error('[データ取得] エラー:', err);
+    alert('予約データの取得に失敗しました。しばらくしてから再度お試しください。');
+  });
+
+  const refreshButton = document.getElementById('refreshCalendar');
+  const refreshStatus = document.getElementById('refreshStatus');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', async () => {
+      refreshButton.disabled = true;
+      if (refreshStatus) {
+        refreshStatus.textContent = '最新の予約データを取得しています…';
+      }
+
+      try {
+        await loadReservationData(true);
+        if (refreshStatus) {
+          refreshStatus.textContent = '予約状況を最新のデータに更新しました。';
+        }
+      } catch (err) {
+        console.error('[データ更新] エラー:', err);
+        if (refreshStatus) {
+          refreshStatus.textContent = '更新に失敗しました。通信状態を確認して、もう一度お試しください。';
+        }
+        alert('最新の予約データを取得できませんでした。通信状態を確認して、もう一度お試しください。');
+      } finally {
+        refreshButton.disabled = false;
+      }
+    });
+  }
 
   function pad(n) {
     return n < 10 ? '0' + n : n;

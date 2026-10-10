@@ -190,9 +190,14 @@ table.calendar td.other-month.holiday-reserved {
     table.calendar th, table.calendar td { font-size: 0.9em; padding: 0.4em 0.1em; }
     .calendar-nav {
     flex-direction: row !important;
+    flex-wrap: wrap;
     gap: 0.3em;
     justify-content: center;
     align-items: center;
+    }
+    .calendar-nav #currentMonth {
+    flex: 1 0 100%;
+    text-align: center;
     }
     .calendar-nav button {
     font-size: 0.9em;

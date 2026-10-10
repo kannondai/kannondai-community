@@ -58,9 +58,11 @@
     <span id="currentMonth"></span>
     <button id="prevMonth" class="navigation-button">&lt; 前月</button>
     <button id="goToday" class="navigation-button">今日</button>
+    <button id="refreshCalendar" class="navigation-button" type="button" aria-label="予約状況を最新データに更新" title="最新の予約データを取得">更新</button>
     <button id="nextMonth" class="navigation-button">次月 &gt;</button>
     <button id="toggleDetail" class="detail-button">詳細表示</button>
   </div>
+  <p id="refreshStatus" role="status" aria-live="polite" style="margin: -0.5em 0 1em; font-size: 0.9em;"></p>
   <table class="calendar" id="calendarTable">
     <thead>
       <tr>
