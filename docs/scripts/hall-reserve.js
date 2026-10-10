@@ -24,7 +24,6 @@ const DEFAULT_RESERVATION_MESSAGE = `日付を${isTouchDevice ? "タップ" : "�
 // キャッシュバスターを適用
 function applyCacheBuster() {
   addCacheBusterToElement('js-core-min');
-  addCacheBusterToElement('js-hall-reserve');
   addCacheBusterToElement('js-checkpw');
 }
 

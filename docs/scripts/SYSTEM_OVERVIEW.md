@@ -90,7 +90,8 @@
 - `scripts/cache-buster.js` — キャッシュ対策（バージョン管理）
 
 **キャッシュ対策**:
-- CSS/JSファイルに `?v=<version>` パラメータを付与
+- CSS/カレンダーJSの `?v=<version>` は内容変更時に更新し、同じ日でも古いファイルが再利用されないようにする
+- その他の共通スクリプトは日付ベースのキャッシュバスターを使用
 - 更新ボタンではJSON URLに一時的なクエリを付け、キャッシュなしで再取得
 
 #### 3.2 JavaScript (`docs/scripts/hall-reserve.js`)
