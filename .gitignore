@@ -25,6 +25,11 @@ tools/bgm_data.json
 !docs/page_url.png
 !docs/icons/icon-192.png
 !docs/icons/icon-512.png
+!docs/environment/figs/crosswalk-camera-concept-cut.png
+!docs/environment/figs/curve_mirrors-at-electric_pole.png
+
+# 実写動画はローカルで管理
+docs/environment/videos/
 
 # Tools - 一時的なドキュメント置き場
 tools/documents/
